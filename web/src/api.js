@@ -1,4 +1,4 @@
-const BASE_URL = '';
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 async function handle(res) {
   if (!res.ok) {
