@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/ingredient-scanner/' : '/',
+  base: '/',
   plugins: command === 'serve' ? [react(), basicSsl()] : [react()],
   server: {
     host: true,
