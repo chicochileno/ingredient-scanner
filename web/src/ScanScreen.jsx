@@ -6,8 +6,7 @@ export default function ScanScreen({ onResult }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const barcodeInputRef = useRef(null);
-  const [mode, setMode] = useState('label');
+const [mode, setMode] = useState('label');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
@@ -60,42 +59,35 @@ export default function ScanScreen({ onResult }) {
     }
   }
 
-  // Barcode mode: use native camera capture → send image to Vision API for barcode detection
-  async function handleBarcodeCapture(e) {
-    const file = e.target.files[0];
-    if (!file || loading) return;
+  async function handleBarcodeCapture() {
+    if (!cameraReady || loading) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
     setLoading(true);
     setError(null);
     try {
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const base64 = ev.target.result.split(',')[1];
-        // Try Vision API for barcode first
-        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/scan/image`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64: base64, detectBarcode: true }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Scan failed');
-        onResult(data, 'barcode');
-        setLoading(false);
-      };
-      reader.readAsDataURL(file);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/scan/image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64, detectBarcode: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Scan failed');
+      onResult(data, 'barcode');
     } catch (e) {
       setError(e.message);
+    } finally {
       setLoading(false);
     }
-    // Reset input so same file can be selected again
-    e.target.value = '';
   }
 
   return (
     <div className="scan-root">
-      <video ref={videoRef} className="scan-video" autoPlay playsInline muted style={mode !== 'label' ? { display: 'none' } : undefined} />
-      {mode === 'barcode' && (
-        <div className="barcode-bg" />
-      )}
+      <video ref={videoRef} className="scan-video" autoPlay playsInline muted />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
       <div className="scan-overlay">
@@ -142,20 +134,13 @@ export default function ScanScreen({ onResult }) {
           )}
 
           {mode === 'barcode' && (
-            <label className={`capture-btn ${loading ? 'loading' : ''}`}>
-              {loading
-                ? <span className="spinner" />
-                : <span className="capture-inner" />}
-              <input
-                ref={barcodeInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                style={{ display: 'none' }}
-                onChange={handleBarcodeCapture}
-                disabled={loading}
-              />
-            </label>
+            <button
+              className={`capture-btn ${loading ? 'loading' : ''}`}
+              onClick={handleBarcodeCapture}
+              disabled={loading || !cameraReady}
+            >
+              {loading ? <span className="spinner" /> : <span className="capture-inner" />}
+            </button>
           )}
         </div>
 
