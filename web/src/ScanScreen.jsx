@@ -37,13 +37,9 @@ export default function ScanScreen({ onResult }) {
   }, []);
 
   useEffect(() => {
-    if (mode === 'label') {
-      startCamera();
-    } else {
-      stopCamera();
-    }
+    startCamera();
     return stopCamera;
-  }, [mode]);
+  }, []);
 
   async function handleCapture() {
     if (!cameraReady || loading) return;
@@ -96,9 +92,7 @@ export default function ScanScreen({ onResult }) {
 
   return (
     <div className="scan-root">
-      {mode === 'label' && (
-        <video ref={videoRef} className="scan-video" autoPlay playsInline muted />
-      )}
+      <video ref={videoRef} className="scan-video" autoPlay playsInline muted style={mode !== 'label' ? { display: 'none' } : undefined} />
       {mode === 'barcode' && (
         <div className="barcode-bg" />
       )}
