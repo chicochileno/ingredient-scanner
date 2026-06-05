@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { signInWithRedirect } from 'firebase/auth';
-import { auth, googleProvider, appleProvider } from './firebase';
+import { auth, googleProvider } from './firebase';
 import './LoginScreen.css';
 
 function GoogleIcon() {
@@ -14,13 +14,6 @@ function GoogleIcon() {
   );
 }
 
-function AppleIcon() {
-  return (
-    <svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor">
-      <path d="M13.197 9.425c-.02-2.065 1.686-3.063 1.762-3.11-0.96-1.402-2.452-1.594-2.983-1.614-1.27-.128-2.484.748-3.127.748-.643 0-1.634-.731-2.688-.711-1.385.02-2.665.806-3.378 2.045C1.07 9.13 2.1 13.463 3.77 15.82c.833 1.2 1.825 2.545 3.123 2.496 1.257-.05 1.728-.806 3.245-.806 1.517 0 1.944.806 3.267.78 1.348-.022 2.2-1.222 3.024-2.429.955-1.393 1.348-2.743 1.367-2.812-.03-.013-2.617-1.003-2.599-3.624zM11.08 3.13C11.77 2.297 12.237 1.15 12.11 0c-.984.04-2.175.655-2.879 1.487C8.56 2.313 8.01 3.483 8.156 4.596c1.095.084 2.218-.556 2.924-1.465z"/>
-    </svg>
-  );
-}
 
 export default function LoginScreen() {
   const [loading, setLoading] = useState(null);
@@ -37,16 +30,6 @@ export default function LoginScreen() {
     }
   }
 
-  async function handleApple() {
-    setLoading('apple');
-    setError(null);
-    try {
-      await signInWithRedirect(auth, appleProvider);
-    } catch {
-      setError('Sign in failed. Please try again.');
-      setLoading(null);
-    }
-  }
 
   return (
     <div className="login-root">
@@ -72,14 +55,6 @@ export default function LoginScreen() {
             <span>Continue with Google</span>
           </button>
 
-          <button
-            className="login-btn login-btn-apple"
-            onClick={handleApple}
-            disabled={!!loading}
-          >
-            {loading === 'apple' ? <span className="login-spinner login-spinner-white" /> : <AppleIcon />}
-            <span>Continue with Apple</span>
-          </button>
         </div>
 
         {error && <p className="login-error">{error}</p>}
