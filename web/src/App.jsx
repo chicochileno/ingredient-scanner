@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from './firebase';
@@ -44,6 +44,13 @@ export default function App() {
   const [selectedScan, setSelectedScan] = useState(null);
 
   useEffect(() => {
+    getRedirectResult(auth).then((result) => {
+      if (result?.user) {
+        setUser(result.user);
+        setAuthReady(true);
+      }
+    }).catch((e) => console.error('Redirect result error:', e));
+
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthReady(true);
