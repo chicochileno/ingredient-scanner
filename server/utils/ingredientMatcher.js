@@ -14,7 +14,9 @@ function stripNonIngredients(text) {
     .replace(/manufactured\s+in[^.]*\.?/gi, '')
     .replace(/processed\s+in[^.]*\.?/gi, '')
     .replace(/made\s+in\s+a\s+facility[^.]*\.?/gi, '')
-    .replace(/produced\s+in[^.]*\.?/gi, '');
+    .replace(/produced\s+in[^.]*\.?/gi, '')
+    // Strip "X-free" descriptor phrases so e.g. "gluten free oats" doesn't trigger gluten flag
+    .replace(/\b(gluten|dairy|casein|wheat|soy|nut|egg|peanut)[\s-]free\b/gi, '');
 }
 
 // Parse a raw ingredient string into individual tokens
