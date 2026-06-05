@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider, appleProvider } from './firebase';
 import './LoginScreen.css';
 
@@ -30,12 +30,9 @@ export default function LoginScreen() {
     setLoading('google');
     setError(null);
     try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (e) {
-      if (e.code !== 'auth/popup-closed-by-user') {
-        setError('Sign in failed. Please try again.');
-      }
-    } finally {
+      await signInWithRedirect(auth, googleProvider);
+    } catch {
+      setError('Sign in failed. Please try again.');
       setLoading(null);
     }
   }
@@ -44,12 +41,9 @@ export default function LoginScreen() {
     setLoading('apple');
     setError(null);
     try {
-      await signInWithPopup(auth, appleProvider);
-    } catch (e) {
-      if (e.code !== 'auth/popup-closed-by-user') {
-        setError('Sign in failed. Please try again.');
-      }
-    } finally {
+      await signInWithRedirect(auth, appleProvider);
+    } catch {
+      setError('Sign in failed. Please try again.');
       setLoading(null);
     }
   }
