@@ -4,9 +4,19 @@ const { matchIngredients } = require('../utils/ingredientMatcher');
 
 const router = express.Router();
 
+// Extract the most likely UPC/EAN barcode from OCR text
+function extractBarcode(text) {
+  // Match standalone 8-14 digit sequences (UPC-E=8, UPC-A=12, EAN-13=13, EAN-14=14)
+  const matches = text.match(/\b\d{8,14}\b/g);
+  if (!matches) return null;
+  // Prefer 12 or 13 digit codes (most common retail barcodes)
+  const preferred = matches.find((m) => m.length === 12 || m.length === 13);
+  return preferred || matches[0];
+}
+
 // POST /scan/image — accepts base64 image, runs Google Vision OCR, returns flagged ingredients
 router.post('/image', async (req, res) => {
-  const { imageBase64 } = req.body;
+  const { imageBase64, detectBarcode } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'imageBase64 required' });
 
   const apiKey = process.env.GOOGLE_VISION_API_KEY;
@@ -26,6 +36,37 @@ router.post('/image', async (req, res) => {
     );
 
     const annotations = visionRes.data.responses[0];
+
+    if (detectBarcode) {
+      const rawText = annotations?.fullTextAnnotation?.text || '';
+      const upc = extractBarcode(rawText);
+
+      if (!upc) {
+        return res.status(422).json({ error: 'No barcode found in image. Try again with the barcode centered and well-lit.' });
+      }
+
+      const offRes = await axios.get(
+        `https://world.openfoodfacts.org/api/v0/product/${upc}.json`,
+        { timeout: 8000 }
+      );
+
+      if (offRes.data.status === 0) {
+        return res.status(404).json({ error: `Barcode ${upc} not found in Open Food Facts database.` });
+      }
+
+      const product = offRes.data.product;
+      const productName = product.product_name || 'Unknown Product';
+      const rawIngredients = product.ingredients_text || '';
+      const imageUrl = product.image_url || null;
+
+      if (!rawIngredients) {
+        return res.json({ productName, imageUrl, upc, rawText: '', flagged: [], ingredientCount: 0 });
+      }
+
+      const flagged = matchIngredients(rawIngredients);
+      return res.json({ productName, imageUrl, upc, rawText: rawIngredients, flagged, ingredientCount: flagged.length });
+    }
+
     if (!annotations || !annotations.fullTextAnnotation) {
       return res.json({ rawText: '', flagged: [], ingredientCount: 0 });
     }

@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
 import { scanImage, scanBarcode } from './api';
 import './ScanScreen.css';
 
@@ -7,7 +6,7 @@ export default function ScanScreen({ onResult }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const qrRef = useRef(null);
+  const barcodeInputRef = useRef(null);
   const [mode, setMode] = useState('label');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,10 +17,7 @@ export default function ScanScreen({ onResult }) {
       streamRef.current.getTracks().forEach(t => t.stop());
       streamRef.current = null;
     }
-    if (qrRef.current) {
-      qrRef.current.stop().catch(() => {});
-      qrRef.current = null;
-    }
+    setCameraReady(false);
   }, []);
 
   const startCamera = useCallback(async () => {
@@ -42,33 +38,9 @@ export default function ScanScreen({ onResult }) {
 
   useEffect(() => {
     if (mode === 'label') {
-      if (qrRef.current) {
-        qrRef.current.stop().catch(() => {});
-        qrRef.current = null;
-      }
       startCamera();
     } else {
       stopCamera();
-      setCameraReady(false);
-      const qr = new Html5Qrcode('qr-reader');
-      qrRef.current = qr;
-      qr.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 240, height: 240 } },
-        async (decodedText) => {
-          if (loading) return;
-          setLoading(true);
-          try {
-            const result = await scanBarcode(decodedText);
-            stopCamera();
-            onResult(result, 'barcode');
-          } catch (e) {
-            setError(e.message);
-            setLoading(false);
-          }
-        },
-        () => {}
-      ).catch(() => setError('Could not start barcode scanner.'));
     }
     return stopCamera;
   }, [mode]);
@@ -92,12 +64,43 @@ export default function ScanScreen({ onResult }) {
     }
   }
 
+  // Barcode mode: use native camera capture → send image to Vision API for barcode detection
+  async function handleBarcodeCapture(e) {
+    const file = e.target.files[0];
+    if (!file || loading) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const base64 = ev.target.result.split(',')[1];
+        // Try Vision API for barcode first
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/scan/image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: base64, detectBarcode: true }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Scan failed');
+        onResult(data, 'barcode');
+        setLoading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (e) {
+      setError(e.message);
+      setLoading(false);
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  }
+
   return (
     <div className="scan-root">
-      {mode === 'label' ? (
+      {mode === 'label' && (
         <video ref={videoRef} className="scan-video" autoPlay playsInline muted />
-      ) : (
-        <div id="qr-reader" className="scan-video" />
+      )}
+      {mode === 'barcode' && (
+        <div className="barcode-bg" />
       )}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
@@ -105,7 +108,7 @@ export default function ScanScreen({ onResult }) {
         <div className="scan-top">
           <h1 className="scan-title">Ingredient Scanner</h1>
           <p className="scan-sub">
-            {mode === 'label' ? 'Point at an ingredient list' : 'Point at a product barcode'}
+            {mode === 'label' ? 'Point at an ingredient list' : 'Take a photo of the barcode'}
           </p>
         </div>
 
@@ -113,6 +116,12 @@ export default function ScanScreen({ onResult }) {
           <div className="scan-frame">
             <span className="corner tl" /><span className="corner tr" />
             <span className="corner bl" /><span className="corner br" />
+          </div>
+        )}
+
+        {mode === 'barcode' && (
+          <div className="barcode-frame">
+            <span className="barcode-line" />
           </div>
         )}
 
@@ -138,13 +147,28 @@ export default function ScanScreen({ onResult }) {
             </button>
           )}
 
-          {mode === 'barcode' && loading && <div className="barcode-loading"><span className="spinner white" /></div>}
+          {mode === 'barcode' && (
+            <label className={`capture-btn ${loading ? 'loading' : ''}`}>
+              {loading
+                ? <span className="spinner" />
+                : <span className="capture-inner" />}
+              <input
+                ref={barcodeInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                style={{ display: 'none' }}
+                onChange={handleBarcodeCapture}
+                disabled={loading}
+              />
+            </label>
+          )}
         </div>
 
         {error && (
           <div className="scan-error">
             <span>{error}</span>
-            <button onClick={() => { setError(null); startCamera(); }}>Retry</button>
+            <button onClick={() => { setError(null); if (mode === 'label') startCamera(); }}>Retry</button>
           </div>
         )}
       </div>

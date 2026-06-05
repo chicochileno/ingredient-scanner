@@ -5,9 +5,22 @@ function normalize(str) {
   return str.toLowerCase().replace(/[^a-z0-9\s&]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// Strip "may contain", allergen warnings, and anything after the ingredient list ends
+function stripNonIngredients(text) {
+  return text
+    .replace(/may contain[^.]*\.?/gi, '')
+    .replace(/contains?:?\s*(traces?\s+of\s*)?[^.]*\.?/gi, '')
+    .replace(/allergen\s+information[^.]*\.?/gi, '')
+    .replace(/manufactured\s+in[^.]*\.?/gi, '')
+    .replace(/processed\s+in[^.]*\.?/gi, '')
+    .replace(/made\s+in\s+a\s+facility[^.]*\.?/gi, '')
+    .replace(/produced\s+in[^.]*\.?/gi, '');
+}
+
 // Parse a raw ingredient string into individual tokens
 function parseIngredientList(rawText) {
-  return rawText
+  const cleaned = stripNonIngredients(rawText);
+  return cleaned
     .split(/[,;()\[\]{}]+/)
     .map((s) => normalize(s))
     .filter((s) => s.length > 1);
