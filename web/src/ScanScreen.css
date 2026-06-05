@@ -36,7 +36,27 @@
 .scan-top {
   padding: 16px 24px 0;
   text-align: center;
+  position: relative;
 }
+
+.scan-back {
+  position: absolute;
+  left: 24px;
+  top: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.scan-back:active { background: rgba(0,0,0,0.55); }
 
 .scan-title {
   font-family: var(--font-display);
