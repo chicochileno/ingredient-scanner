@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from './firebase';
@@ -44,11 +44,6 @@ export default function App() {
   const [selectedScan, setSelectedScan] = useState(null);
 
   useEffect(() => {
-    // Process the result when Google/Apple redirects back to the app
-    getRedirectResult(auth).catch((e) => {
-      console.error('Auth redirect error:', e);
-    });
-
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthReady(true);
@@ -105,7 +100,7 @@ export default function App() {
     );
   }
 
-  if (!user) return <LoginScreen />;
+  if (!user) return <LoginScreen onSignedIn={(u) => { setUser(u); setAuthReady(true); }} />;
 
   if (screen === 'home') {
     return (

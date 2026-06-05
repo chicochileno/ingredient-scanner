@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signInWithRedirect } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from './firebase';
 import './LoginScreen.css';
 
@@ -15,7 +15,7 @@ function GoogleIcon() {
 }
 
 
-export default function LoginScreen() {
+export default function LoginScreen({ onSignedIn }) {
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
 
@@ -23,9 +23,12 @@ export default function LoginScreen() {
     setLoading('google');
     setError(null);
     try {
-      await signInWithRedirect(auth, googleProvider);
-    } catch {
-      setError('Sign in failed. Please try again.');
+      const result = await signInWithPopup(auth, googleProvider);
+      onSignedIn(result.user);
+    } catch (e) {
+      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+        setError(`Sign in failed: ${e.message}`);
+      }
       setLoading(null);
     }
   }
