@@ -21,7 +21,7 @@ function GoogleIcon() {
 
 export default function LoginScreen({ onSignedIn }) {
   const [loading, setLoading] = useState(null);
-  const [error, setError] = useState(window.__authError || null);
+  const [error, setError] = useState(null);
 
   async function handleGoogle() {
     setLoading('google');

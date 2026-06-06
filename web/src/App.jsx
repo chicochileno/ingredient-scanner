@@ -44,22 +44,35 @@ export default function App() {
   const [selectedScan, setSelectedScan] = useState(null);
 
   useEffect(() => {
-    getRedirectResult(auth).then((result) => {
-      if (result?.user) {
-        setUser(result.user);
-        setAuthReady(true);
+    const processRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          setUser(result.user);
+          setAuthReady(true);
+        }
+      } catch (e) {
+        console.error('Redirect result error:', e);
       }
-    }).catch((e) => {
-      console.error('Redirect result error:', e);
-      // Surface the error code on the login screen for debugging
-      window.__authError = e.code + ': ' + e.message;
-    });
+    };
 
-    return onAuthStateChanged(auth, (u) => {
+    // Run on initial load
+    processRedirect();
+
+    // Also run when page is restored from bfcache (Chrome iOS after OAuth redirect)
+    const handlePageShow = (e) => { if (e.persisted) processRedirect(); };
+    window.addEventListener('pageshow', handlePageShow);
+
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthReady(true);
       if (!u) setScreen('home');
     });
+
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+      unsubscribe();
+    };
   }, []);
 
   async function handleResult(data, src, imageBase64) {
