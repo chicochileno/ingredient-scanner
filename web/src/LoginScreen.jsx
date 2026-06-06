@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signInWithPopup, signInWithRedirect } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from './firebase';
 
 // Chrome on iOS opens popups as a new tab and loses the opener reference,
@@ -28,8 +28,8 @@ export default function LoginScreen({ onSignedIn }) {
     setError(null);
     try {
       if (isChromeIOS) {
-        await signInWithRedirect(auth, googleProvider);
-        // Page navigates away — loading stays true until redirect completes
+        // Server-side OAuth — bypasses Chrome iOS cross-origin storage restrictions
+        window.location.href = `${import.meta.env.VITE_API_URL || ''}/auth/google`;
       } else {
         const result = await signInWithPopup(auth, googleProvider);
         onSignedIn(result.user);

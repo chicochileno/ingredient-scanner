@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult, signInWithCustomToken } from 'firebase/auth';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from './firebase';
@@ -44,24 +44,18 @@ export default function App() {
   const [selectedScan, setSelectedScan] = useState(null);
 
   useEffect(() => {
-    const processRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          setUser(result.user);
-          setAuthReady(true);
-        }
-      } catch (e) {
-        console.error('Redirect result error:', e);
-      }
-    };
+    const params = new URLSearchParams(window.location.search);
+    const firebaseToken = params.get('firebaseToken');
 
-    // Run on initial load
-    processRedirect();
-
-    // Also run when page is restored from bfcache (Chrome iOS after OAuth redirect)
-    const handlePageShow = (e) => { if (e.persisted) processRedirect(); };
-    window.addEventListener('pageshow', handlePageShow);
+    if (firebaseToken) {
+      // Clear token from URL immediately
+      window.history.replaceState({}, '', window.location.pathname);
+      signInWithCustomToken(auth, firebaseToken).catch((e) => {
+        console.error('Custom token sign-in failed:', e);
+      });
+    } else {
+      getRedirectResult(auth).catch((e) => console.error('Redirect result error:', e));
+    }
 
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
@@ -69,10 +63,7 @@ export default function App() {
       if (!u) setScreen('home');
     });
 
-    return () => {
-      window.removeEventListener('pageshow', handlePageShow);
-      unsubscribe();
-    };
+    return unsubscribe;
   }, []);
 
   async function handleResult(data, src, imageBase64) {
