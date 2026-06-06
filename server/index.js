@@ -13,7 +13,7 @@ app.use(express.json({ limit: '10mb' })); // large enough for base64 images
 app.use('/scan', scanRoutes);
 app.use('/auth', authRoutes);
 
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/health', (req, res) => res.json({ status: 'ok', version: '2.0', routes: ['scan', 'auth'] }));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
