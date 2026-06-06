@@ -55,15 +55,33 @@ router.get('/google/callback', async (req, res) => {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    const uid = `google_${payload.sub}`;
 
-    // Create a Firebase custom token for this user
-    const customToken = await admin.auth().createCustomToken(uid, {
-      email: payload.email,
-      name: payload.name,
-      picture: payload.picture,
-    });
+    // Find existing Firebase user for this Google account so that Safari (popup)
+    // and Chrome iOS (server OAuth) share the same UID and see the same history.
+    let uid;
+    try {
+      const userRecord = await admin.auth().getUserByProviderUid('google.com', payload.sub);
+      uid = userRecord.uid;
+    } catch (e) {
+      // No existing user — import one with Google provider linked so future
+      // signInWithPopup calls on other browsers resolve to the same UID.
+      uid = `google_${payload.sub}`;
+      await admin.auth().importUsers([{
+        uid,
+        email: payload.email,
+        displayName: payload.name,
+        photoURL: payload.picture,
+        providerData: [{
+          uid: payload.sub,
+          email: payload.email,
+          displayName: payload.name,
+          photoURL: payload.picture,
+          providerId: 'google.com',
+        }],
+      }]);
+    }
 
+    const customToken = await admin.auth().createCustomToken(uid);
     res.redirect(`${FRONTEND_URL}/?firebaseToken=${customToken}`);
   } catch (e) {
     console.error('Auth callback error:', e.message);
