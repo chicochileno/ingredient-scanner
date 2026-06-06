@@ -49,7 +49,11 @@ export default function App() {
         setUser(result.user);
         setAuthReady(true);
       }
-    }).catch((e) => console.error('Redirect result error:', e));
+    }).catch((e) => {
+      console.error('Redirect result error:', e);
+      // Surface the error code on the login screen for debugging
+      window.__authError = e.code + ': ' + e.message;
+    });
 
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
