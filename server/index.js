@@ -16,5 +16,5 @@ app.use('/auth', authRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok', version: '2.0', routes: ['scan', 'auth'] }));
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server v2.0 running on port ${PORT}`);
 });
