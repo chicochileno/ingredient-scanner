@@ -5,7 +5,7 @@ const admin = require('firebase-admin');
 const router = express.Router();
 
 const CALLBACK_URL = 'https://precious-acceptance-production.up.railway.app/auth/google/callback';
-const FRONTEND_URL = 'https://ingredient-scanner-app-c9206.web.app';
+const FRONTEND_URL = 'https://scanner.joelrog.com';
 
 // Initialize Firebase Admin (only once)
 if (!admin.apps.length) {
