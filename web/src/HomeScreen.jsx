@@ -40,6 +40,7 @@ export default function HomeScreen({ user, onScan, onHistory }) {
 
       <div className="home-content">
         <div className="home-brand">
+          <img src="/favicon.png" width="72" height="72" alt="" style={{ borderRadius: 18, display: 'block', margin: '0 auto 16px' }} />
           <h1 className="home-title">Ingredient<br />Scanner</h1>
           <p className="home-sub">Know what's in your child's food.</p>
         </div>
