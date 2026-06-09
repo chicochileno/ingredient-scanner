@@ -90,27 +90,102 @@
   padding: 8px 0 env(safe-area-inset-bottom, 24px);
 }
 
-.hist-list li {
+
+.hist-list-item {
   border-bottom: 1px solid var(--border);
 }
-.hist-list li:last-child {
+.hist-list-item:last-child {
   border-bottom: none;
+}
+
+.hist-item-row {
+  display: flex;
+  align-items: center;
+  animation: fadeUp 0.3s ease both;
 }
 
 .hist-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  width: 100%;
-  padding: 14px 20px;
+  flex: 1;
+  min-width: 0;
+  padding: 14px 0 14px 20px;
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
-  animation: fadeUp 0.3s ease both;
   transition: background 0.1s;
 }
 .hist-item:active { background: var(--border); }
+
+.hist-item-editing {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 12px 14px 20px;
+  animation: fadeUp 0.3s ease both;
+}
+
+.hist-edit-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding-right: 12px;
+  transition: color 0.15s;
+}
+.hist-edit-btn:active { color: var(--sage); }
+
+.hist-name-input {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1.5px solid var(--sage);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  outline: none;
+  letter-spacing: -0.1px;
+}
+
+.hist-edit-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.hist-save-btn {
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hist-save-btn:disabled { opacity: 0.6; }
+
+.hist-cancel-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+  font-family: var(--font-body);
+}
 
 .hist-item-thumb {
   width: 48px;
@@ -169,7 +244,7 @@
 
 .hist-badge-safe {
   background: var(--sage-light);
-  color: var(--sage);
+  color: #265C36;
 }
 
 .hist-badge-warn {

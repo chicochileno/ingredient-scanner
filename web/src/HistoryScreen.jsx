@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, limit, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './HistoryScreen.css';
 
@@ -27,9 +27,25 @@ function FlagBadge({ flagged }) {
   );
 }
 
+function PencilIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+  );
+}
+
+function defaultName(scan) {
+  return scan.productName || (scan.mode === 'barcode' ? 'Barcode scan' : 'Label scan');
+}
+
 export default function HistoryScreen({ user, onBack, onSelect }) {
   const [scans, setScans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -49,6 +65,27 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
     }
     load();
   }, [user.uid]);
+
+  function startEdit(scan) {
+    setEditingId(scan.id);
+    setEditingName(defaultName(scan));
+  }
+
+  async function saveName(scanId) {
+    if (!editingName.trim() || saving) return;
+    setSaving(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid, 'scans', scanId), {
+        productName: editingName.trim(),
+      });
+      setScans(prev => prev.map(s => s.id === scanId ? { ...s, productName: editingName.trim() } : s));
+      setEditingId(null);
+    } catch (e) {
+      console.error('Failed to save name', e);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="hist-root">
@@ -79,28 +116,56 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
         {!loading && scans.length > 0 && (
           <ul className="hist-list">
             {scans.map((scan, i) => (
-              <li key={scan.id}>
-                <button
-                  className="hist-item"
-                  style={{ animationDelay: `${i * 30}ms` }}
-                  onClick={() => onSelect(scan)}
-                >
-                  <div className="hist-item-thumb">
-                    {scan.imageUrl
-                      ? <img src={scan.imageUrl} alt="" className="hist-thumb-img" />
-                      : <span className="hist-thumb-placeholder">
-                          {scan.mode === 'barcode' ? '▦' : '⊟'}
-                        </span>
-                    }
+              <li key={scan.id} className="hist-list-item">
+                {editingId === scan.id ? (
+                  <div className="hist-item hist-item-editing" style={{ animationDelay: `${i * 30}ms` }}>
+                    <div className="hist-item-thumb">
+                      {scan.imageUrl
+                        ? <img src={scan.imageUrl} alt="" className="hist-thumb-img" />
+                        : <span className="hist-thumb-placeholder">
+                            {scan.mode === 'barcode' ? '▦' : '⊟'}
+                          </span>
+                      }
+                    </div>
+                    <div className="hist-item-body">
+                      <input
+                        className="hist-name-input"
+                        value={editingName}
+                        onChange={e => setEditingName(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && saveName(scan.id)}
+                        autoFocus
+                      />
+                      <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
+                    </div>
+                    <div className="hist-edit-actions">
+                      <button className="hist-save-btn" onClick={() => saveName(scan.id)} disabled={saving}>
+                        {saving ? '…' : 'Save'}
+                      </button>
+                      <button className="hist-cancel-btn" onClick={() => setEditingId(null)}>✕</button>
+                    </div>
                   </div>
-                  <div className="hist-item-body">
-                    <p className="hist-item-name">
-                      {scan.productName || (scan.mode === 'barcode' ? 'Barcode scan' : 'Label scan')}
-                    </p>
-                    <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
+                ) : (
+                  <div className="hist-item-row" style={{ animationDelay: `${i * 30}ms` }}>
+                    <button className="hist-item" onClick={() => onSelect(scan)}>
+                      <div className="hist-item-thumb">
+                        {scan.imageUrl
+                          ? <img src={scan.imageUrl} alt="" className="hist-thumb-img" />
+                          : <span className="hist-thumb-placeholder">
+                              {scan.mode === 'barcode' ? '▦' : '⊟'}
+                            </span>
+                        }
+                      </div>
+                      <div className="hist-item-body">
+                        <p className="hist-item-name">{defaultName(scan)}</p>
+                        <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
+                      </div>
+                      <FlagBadge flagged={scan.flagged} />
+                    </button>
+                    <button className="hist-edit-btn" onClick={() => startEdit(scan)} aria-label="Edit name">
+                      <PencilIcon />
+                    </button>
                   </div>
-                  <FlagBadge flagged={scan.flagged} />
-                </button>
+                )}
               </li>
             ))}
           </ul>

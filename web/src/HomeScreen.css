@@ -167,7 +167,7 @@
   margin-top: 2px;
 }
 
-.home-card-scan .home-card-desc { opacity: 0.8; }
+.home-card-scan .home-card-desc { opacity: 1; color: rgba(255, 255, 255, 0.95); }
 
 /* Stack label + desc */
 .home-card {
