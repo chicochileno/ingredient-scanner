@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { onAuthStateChanged, getRedirectResult, signInWithCustomToken } from 'firebase/auth';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from './firebase';
 import LoginScreen from './LoginScreen';
@@ -9,81 +10,76 @@ import ScanScreen from './ScanScreen';
 import ResultsScreen from './ResultsScreen';
 import HistoryScreen from './HistoryScreen';
 
-async function saveScan(uid, result, source, imageBase64) {
-  const scanRef = doc(collection(db, 'users', uid, 'scans'));
-  let imageUrl = null;
-
-  if (imageBase64) {
-    try {
-      const storageRef = ref(storage, `scans/${uid}/${scanRef.id}.jpg`);
-      await uploadString(storageRef, imageBase64, 'base64', { contentType: 'image/jpeg' });
-      imageUrl = await getDownloadURL(storageRef);
-    } catch (e) {
-      console.error('Image upload failed', e);
-    }
-  }
-
-  await setDoc(scanRef, {
-    createdAt: serverTimestamp(),
-    mode: source,
-    productName: result.productName || null,
-    rawText: result.rawText || '',
-    flagged: result.flagged || [],
-    ingredientCount: result.ingredientCount || 0,
-    imageUrl,
-  });
+function RequireAuth({ user, authReady, children }) {
+  if (!authReady) return null;
+  if (!user) return <Navigate to="/" replace />;
+  return children;
 }
 
-export default function App() {
-  const [authReady, setAuthReady] = useState(false);
-  const [user, setUser] = useState(null);
-  const [screen, setScreen] = useState('home');
-  const [result, setResult] = useState(null);
-  const [resultSource, setResultSource] = useState(null);
-  const [resultImageUrl, setResultImageUrl] = useState(null);
-  const [selectedScan, setSelectedScan] = useState(null);
+function HomeRoute({ user, onScan, onHistory }) {
+  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} />;
+}
+
+function ResultsRoute() {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  if (!state?.result) return <Navigate to="/home" replace />;
+  return (
+    <ResultsScreen
+      result={state.result}
+      source={state.source}
+      imageUrl={state.imageUrl}
+      onScanAgain={() => navigate('/scan')}
+      onBack={() => navigate('/home')}
+    />
+  );
+}
+
+function HistoryScanRoute({ user }) {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const { scanId } = useParams();
+  const [scan, setScan] = useState(state?.scan || null);
+  const [loading, setLoading] = useState(!state?.scan);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const firebaseToken = params.get('firebaseToken');
+    if (state?.scan) return;
+    getDoc(doc(db, 'users', user.uid, 'scans', scanId))
+      .then(d => {
+        if (d.exists()) setScan({ id: d.id, ...d.data() });
+        else navigate('/history', { replace: true });
+      })
+      .catch(() => navigate('/history', { replace: true }))
+      .finally(() => setLoading(false));
+  }, [scanId]);
 
-    if (firebaseToken) {
-      // Clear token from URL immediately
-      window.history.replaceState({}, '', window.location.pathname);
-      signInWithCustomToken(auth, firebaseToken).catch((e) => {
-        console.error('Custom token sign-in failed:', e);
-      });
-    } else {
-      getRedirectResult(auth).catch((e) => console.error('Redirect result error:', e));
-    }
+  if (loading) return null;
+  if (!scan) return null;
 
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setAuthReady(true);
-      if (!u) setScreen('home');
-    });
+  return (
+    <ResultsScreen
+      result={scan}
+      source={scan.mode}
+      imageUrl={scan.imageUrl}
+      onBack={() => navigate('/history')}
+    />
+  );
+}
 
-    return unsubscribe;
-  }, []);
+function AppRoutes({ user, authReady, setUser, setAuthReady }) {
+  const navigate = useNavigate();
 
   async function handleResult(data, src, imageBase64) {
-    setResult(data);
-    setResultSource(src);
-    setResultImageUrl(null);
-    setScreen('results');
+    let imageUrl = null;
 
     if (user) {
       try {
         const scanRef = doc(collection(db, 'users', user.uid, 'scans'));
-        let imageUrl = null;
-
         if (imageBase64) {
           const storageRef = ref(storage, `scans/${user.uid}/${scanRef.id}.jpg`);
           await uploadString(storageRef, imageBase64, 'base64', { contentType: 'image/jpeg' });
           imageUrl = await getDownloadURL(storageRef);
-          setResultImageUrl(imageUrl);
         }
-
         await setDoc(scanRef, {
           createdAt: serverTimestamp(),
           mode: src,
@@ -97,6 +93,8 @@ export default function App() {
         console.error('Failed to save scan', e);
       }
     }
+
+    navigate('/results', { state: { result: data, source: src, imageUrl } });
   }
 
   if (!authReady) {
@@ -115,58 +113,103 @@ export default function App() {
     );
   }
 
-  if (!user) return <LoginScreen onSignedIn={(u) => { setUser(u); setAuthReady(true); }} />;
-
-  if (screen === 'home') {
-    return (
-      <HomeScreen
-        user={user}
-        onScan={() => setScreen('scan')}
-        onHistory={() => setScreen('history')}
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          user
+            ? <Navigate to="/home" replace />
+            : <LoginScreen onSignedIn={(u) => { setUser(u); setAuthReady(true); }} />
+        }
       />
-    );
-  }
-
-  if (screen === 'scan') {
-    return (
-      <ScanScreen
-        onResult={handleResult}
-        onBack={() => setScreen('home')}
+      <Route
+        path="/home"
+        element={
+          <RequireAuth user={user} authReady={authReady}>
+            <HomeRoute
+              user={user}
+              onScan={() => navigate('/scan')}
+              onHistory={() => navigate('/history')}
+            />
+          </RequireAuth>
+        }
       />
-    );
-  }
-
-  if (screen === 'results') {
-    return (
-      <ResultsScreen
-        result={result}
-        source={resultSource}
-        imageUrl={resultImageUrl}
-        onScanAgain={() => setScreen('scan')}
-        onBack={() => setScreen('home')}
+      <Route
+        path="/scan"
+        element={
+          <RequireAuth user={user} authReady={authReady}>
+            <ScanScreen
+              onResult={handleResult}
+              onBack={() => navigate('/home')}
+            />
+          </RequireAuth>
+        }
       />
-    );
-  }
+      <Route
+        path="/results"
+        element={
+          <RequireAuth user={user} authReady={authReady}>
+            <ResultsRoute />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/history"
+        element={
+          <RequireAuth user={user} authReady={authReady}>
+            <HistoryScreen
+              user={user}
+              onBack={() => navigate('/home')}
+              onSelect={(scan) => navigate(`/history/${scan.id}`, { state: { scan } })}
+            />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/history/:scanId"
+        element={
+          <RequireAuth user={user} authReady={authReady}>
+            <HistoryScanRoute user={user} />
+          </RequireAuth>
+        }
+      />
+      <Route path="*" element={<Navigate to={user ? '/home' : '/'} replace />} />
+    </Routes>
+  );
+}
 
-  if (screen === 'history') {
-    if (selectedScan) {
-      return (
-        <ResultsScreen
-          result={selectedScan}
-          source={selectedScan.mode}
-          imageUrl={selectedScan.imageUrl}
-          onBack={() => setSelectedScan(null)}
-        />
-      );
+export default function App() {
+  const [authReady, setAuthReady] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const firebaseToken = params.get('firebaseToken');
+
+    if (firebaseToken) {
+      window.history.replaceState({}, '', window.location.pathname);
+      signInWithCustomToken(auth, firebaseToken).catch((e) => {
+        console.error('Custom token sign-in failed:', e);
+      });
+    } else {
+      getRedirectResult(auth).catch((e) => console.error('Redirect result error:', e));
     }
-    return (
-      <HistoryScreen
-        user={user}
-        onBack={() => setScreen('home')}
-        onSelect={(scan) => setSelectedScan(scan)}
-      />
-    );
-  }
 
-  return null;
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setAuthReady(true);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return (
+    <AppRoutes
+      user={user}
+      authReady={authReady}
+      setUser={setUser}
+      setAuthReady={setAuthReady}
+    />
+  );
 }
