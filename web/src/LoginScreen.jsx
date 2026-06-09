@@ -48,10 +48,7 @@ export default function LoginScreen({ onSignedIn }) {
       <div className="login-inner">
         <div className="login-brand">
           <div className="login-logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="10" fill="#4A7C59"/>
-              <path d="M8 11h2v10H8zM11 8h2v16h-2zM14 10h2v12h-2zM17 9h2v14h-2zM20 11h2v10h-2zM23 13h1v6h-1z" fill="white" opacity="0.9"/>
-            </svg>
+            <img src="/favicon.png" width="72" height="72" alt="" style={{ borderRadius: 18, display: 'block' }} />
           </div>
           <h1 className="login-title">Ingredient<br />Scanner</h1>
           <p className="login-sub">Know what's in your child's food.</p>
