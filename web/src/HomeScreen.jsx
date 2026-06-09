@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase';
 import './HomeScreen.css';
@@ -20,8 +21,55 @@ function HistoryIcon() {
   );
 }
 
+function AboutSheet({ onClose }) {
+  return (
+    <div className="sheet-backdrop" onClick={onClose}>
+      <div className="sheet" onClick={e => e.stopPropagation()}>
+        <div className="sheet-handle" />
+        <div className="sheet-scroll">
+          <h2 className="sheet-title">How we flag ingredients</h2>
+          <p className="sheet-body">
+            Every ingredient is checked against a curated database built from sources
+            used in autism dietary research and intervention programs.
+          </p>
+
+          <div className="sheet-sources">
+            <div className="sheet-source">
+              <p className="sheet-source-name">Feingold Association</p>
+              <p className="sheet-source-desc">Dietary guidelines linking artificial additives to behavioral changes in children.</p>
+            </div>
+            <div className="sheet-source">
+              <p className="sheet-source-name">TACA Dietary Guidelines</p>
+              <p className="sheet-source-desc">Talk About Curing Autism's evidence-based elimination diet recommendations (GFCF, SCD).</p>
+            </div>
+            <div className="sheet-source">
+              <p className="sheet-source-name">Gut-Brain Axis Research</p>
+              <p className="sheet-source-desc">Peer-reviewed studies on excitotoxins, casein, gluten, and their neurological effects.</p>
+            </div>
+          </div>
+
+          <h3 className="sheet-subtitle">What we flag</h3>
+          <div className="sheet-tags">
+            {['Artificial dyes', 'Artificial preservatives', 'MSG & excitotoxins', 'Gluten sources', 'Casein & dairy proteins', 'High-fructose corn syrup', 'Artificial sweeteners', 'Carrageenan'].map(tag => (
+              <span key={tag} className="sheet-tag">{tag}</span>
+            ))}
+          </div>
+
+          <p className="sheet-disclaimer">
+            This app is for informational purposes only and is not a substitute for medical
+            or nutritional advice. Always consult a qualified professional before making
+            dietary changes.
+          </p>
+        </div>
+        <button className="sheet-close" onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+}
+
 export default function HomeScreen({ user, onScan, onHistory }) {
   const firstName = user.displayName?.split(' ')[0] || 'there';
+  const [showAbout, setShowAbout] = useState(false);
 
   return (
     <div className="home-root">
@@ -59,6 +107,14 @@ export default function HomeScreen({ user, onScan, onHistory }) {
           </button>
         </div>
       </div>
+
+      <div className="home-footer">
+        <button className="home-footer-btn" onClick={() => setShowAbout(true)}>
+          How are ingredients flagged?
+        </button>
+      </div>
+
+      {showAbout && <AboutSheet onClose={() => setShowAbout(false)} />}
     </div>
   );
 }
