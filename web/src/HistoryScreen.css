@@ -127,8 +127,15 @@
   animation: fadeUp 0.3s ease both;
 }
 
-.hist-edit-btn {
-  width: 44px;
+.hist-row-actions {
+  display: flex;
+  flex-shrink: 0;
+  padding-right: 4px;
+}
+
+.hist-edit-btn,
+.hist-delete-btn {
+  width: 36px;
   height: 44px;
   display: flex;
   align-items: center;
@@ -138,10 +145,36 @@
   color: var(--ink-3);
   cursor: pointer;
   flex-shrink: 0;
-  padding-right: 12px;
   transition: color 0.15s;
 }
+.hist-edit-btn { padding-right: 2px; }
+.hist-delete-btn { padding-right: 8px; }
 .hist-edit-btn:active { color: var(--sage); }
+.hist-delete-btn:active { color: var(--danger); }
+
+.hist-delete-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: center;
+  padding-right: 12px;
+}
+
+.hist-delete-confirm-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hist-delete-confirm-text {
+  color: var(--danger) !important;
+}
 
 .hist-name-input {
   width: 100%;

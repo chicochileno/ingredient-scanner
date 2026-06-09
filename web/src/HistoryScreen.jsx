@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, limit, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { collection, query, orderBy, limit, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
+import { db, storage } from './firebase';
 import './HistoryScreen.css';
 
 function formatDate(ts) {
@@ -27,6 +28,17 @@ function FlagBadge({ flagged }) {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6"/>
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+      <path d="M10 11v6M14 11v6"/>
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+    </svg>
+  );
+}
+
 function PencilIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,6 +58,7 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -84,6 +97,20 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
       console.error('Failed to save name', e);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function deleteScan(scan) {
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'scans', scan.id));
+      if (scan.imageUrl) {
+        const imgRef = ref(storage, `scans/${user.uid}/${scan.id}.jpg`);
+        await deleteObject(imgRef).catch(() => {});
+      }
+      setScans(prev => prev.filter(s => s.id !== scan.id));
+      setConfirmDeleteId(null);
+    } catch (e) {
+      console.error('Failed to delete scan', e);
     }
   }
 
@@ -156,14 +183,30 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
                         }
                       </div>
                       <div className="hist-item-body">
-                        <p className="hist-item-name">{defaultName(scan)}</p>
+                        {confirmDeleteId === scan.id ? (
+                          <p className="hist-item-name hist-delete-confirm-text">Delete this scan?</p>
+                        ) : (
+                          <p className="hist-item-name">{defaultName(scan)}</p>
+                        )}
                         <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
                       </div>
-                      <FlagBadge flagged={scan.flagged} />
+                      {confirmDeleteId !== scan.id && <FlagBadge flagged={scan.flagged} />}
                     </button>
-                    <button className="hist-edit-btn" onClick={() => startEdit(scan)} aria-label="Edit name">
-                      <PencilIcon />
-                    </button>
+                    {confirmDeleteId === scan.id ? (
+                      <div className="hist-delete-actions">
+                        <button className="hist-delete-confirm-btn" onClick={() => deleteScan(scan)}>Delete</button>
+                        <button className="hist-cancel-btn" onClick={() => setConfirmDeleteId(null)}>✕</button>
+                      </div>
+                    ) : (
+                      <div className="hist-row-actions">
+                        <button className="hist-edit-btn" onClick={() => startEdit(scan)} aria-label="Edit name">
+                          <PencilIcon />
+                        </button>
+                        <button className="hist-delete-btn" onClick={() => setConfirmDeleteId(scan.id)} aria-label="Delete scan">
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </li>

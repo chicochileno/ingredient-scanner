@@ -100,10 +100,9 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
       </div>
 
       <div className="results-footer">
-        {onBack
-          ? <button className="scan-again-btn" onClick={onBack}>Back to History</button>
-          : <button className="scan-again-btn" onClick={onScanAgain}>Scan Again</button>
-        }
+        <button className="scan-again-btn" onClick={onScanAgain}>
+          {onBack ? 'New Scan' : 'Scan Again'}
+        </button>
       </div>
     </div>
   );

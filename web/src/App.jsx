@@ -62,6 +62,7 @@ function HistoryScanRoute({ user }) {
       source={scan.mode}
       imageUrl={scan.imageUrl}
       onBack={() => navigate('/history')}
+      onScanAgain={() => navigate('/scan')}
     />
   );
 }
