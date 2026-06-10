@@ -135,7 +135,7 @@
 
 .hist-edit-btn,
 .hist-delete-btn {
-  width: 36px;
+  width: 44px;
   height: 44px;
   display: flex;
   align-items: center;
@@ -147,8 +147,6 @@
   flex-shrink: 0;
   transition: color 0.15s;
 }
-.hist-edit-btn { padding-right: 2px; }
-.hist-delete-btn { padding-right: 8px; }
 .hist-edit-btn:active { color: var(--sage); }
 .hist-delete-btn:active { color: var(--danger); }
 
