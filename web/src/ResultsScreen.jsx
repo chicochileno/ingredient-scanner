@@ -60,7 +60,7 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
         </div>
 
         <div className={`banner ${allClear ? 'banner-safe' : highCount > 0 ? 'banner-danger' : 'banner-warning'}`}>
-          <span className="banner-icon">{allClear ? '✓' : '!'}</span>
+          <span className="banner-icon">{allClear ? '✓' : highCount > 0 ? '!' : '~'}</span>
           <div>
             <p className="banner-title">
               {allClear ? 'No flags found' : `${flagged.length} ingredient${flagged.length !== 1 ? 's' : ''} flagged`}
