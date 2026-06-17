@@ -4,6 +4,24 @@ const { matchIngredients } = require('../utils/ingredientMatcher');
 
 const router = express.Router();
 
+// Extract just the ingredients section from raw OCR text to avoid false matches
+// in nutrition facts, serving suggestions, or callouts like "great with milk"
+function extractIngredientsSection(text) {
+  const match = text.match(/ingredients?\s*:?\s*/i);
+  if (!match) return text;
+
+  const start = match.index + match[0].length;
+  const remainder = text.slice(start);
+
+  // Stop at common post-ingredients sections
+  const endMatch = remainder.search(
+    /\b(contains\s*:|manufactured\s+(in|by)|distributed\s+by|produced\s+by|packed\s+by|calories|serving\s+size|amount\s+per|nutrition\s+facts|percent\s+daily)\b/i
+  );
+
+  const extracted = endMatch !== -1 ? remainder.slice(0, endMatch) : remainder;
+  return extracted.trim() || text;
+}
+
 // Extract the most likely UPC/EAN barcode from OCR text
 function extractBarcode(text) {
   // Match standalone 8-14 digit sequences (UPC-E=8, UPC-A=12, EAN-13=13, EAN-14=14)
@@ -72,7 +90,8 @@ router.post('/image', async (req, res) => {
     }
 
     const rawText = annotations.fullTextAnnotation.text;
-    const flagged = matchIngredients(rawText);
+    const ingredientsText = extractIngredientsSection(rawText);
+    const flagged = matchIngredients(ingredientsText);
 
     res.json({ rawText, flagged, ingredientCount: flagged.length });
   } catch (err) {
