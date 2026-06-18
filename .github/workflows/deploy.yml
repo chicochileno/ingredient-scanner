@@ -39,9 +39,3 @@ jobs:
           channelId: live
           projectId: ingredient-scanner-app-c9206
 
-      - name: Deploy Firestore rules
-        shell: bash
-        run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_INGREDIENT_SCANNER_APP_C9206 }}' > /tmp/sa.json
-          GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json npx firebase-tools@13 deploy --only firestore --project ingredient-scanner-app-c9206
-          rm /tmp/sa.json
