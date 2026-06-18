@@ -1,4 +1,6 @@
 import './ResultsScreen.css';
+import { useAllergenContext } from './useAllergens';
+import { matchAllergens } from './allergenMatcher';
 
 function SeverityBadge({ severity }) {
   return (
@@ -30,9 +32,14 @@ function IngredientCard({ item, index }) {
 
 export default function ResultsScreen({ result, source, onScanAgain, onBack, imageUrl }) {
   const { flagged = [], rawText = '', productName } = result;
-  const highCount = flagged.filter(i => i.severity === 'high').length;
-  const modCount = flagged.filter(i => i.severity === 'moderate').length;
-  const allClear = flagged.length === 0;
+  const { allergens } = useAllergenContext();
+
+  const allergenFlags = matchAllergens(rawText, allergens);
+
+  const allFlags = [...allergenFlags, ...flagged];
+  const highCount = allFlags.filter(i => i.severity === 'high').length;
+  const modCount = allFlags.filter(i => i.severity === 'moderate').length;
+  const allClear = allFlags.length === 0;
 
   return (
     <div className="results-root">
@@ -63,7 +70,7 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
           <span className="banner-icon">{allClear ? '✓' : highCount > 0 ? '!' : '~'}</span>
           <div>
             <p className="banner-title">
-              {allClear ? 'No flags found' : `${flagged.length} ingredient${flagged.length !== 1 ? 's' : ''} flagged`}
+              {allClear ? 'No flags found' : `${allFlags.length} ingredient${allFlags.length !== 1 ? 's' : ''} flagged`}
             </p>
             <p className="banner-sub">
               {allClear
@@ -72,6 +79,17 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
             </p>
           </div>
         </div>
+
+        {allergenFlags.length > 0 && (
+          <section className="results-section">
+            <h2 className="section-title section-title-allergen">Personal Allergens</h2>
+            <div className="cards">
+              {allergenFlags.map((item, i) => (
+                <IngredientCard key={item.id} item={item} index={i} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {flagged.length > 0 && (
           <section className="results-section">
