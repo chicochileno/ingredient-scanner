@@ -9,6 +9,8 @@ import HomeScreen from './HomeScreen';
 import ScanScreen from './ScanScreen';
 import ResultsScreen from './ResultsScreen';
 import HistoryScreen from './HistoryScreen';
+import { useAllergens, AllergenContext } from './useAllergens';
+import AllergensScreen from './AllergensScreen';
 
 function RequireAuth({ user, authReady, children }) {
   if (!authReady) return null;
@@ -16,8 +18,8 @@ function RequireAuth({ user, authReady, children }) {
   return children;
 }
 
-function HomeRoute({ user, onScan, onHistory }) {
-  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} />;
+function HomeRoute({ user, onScan, onHistory, onAllergens }) {
+  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onAllergens={onAllergens} />;
 }
 
 function ResultsRoute() {
@@ -69,6 +71,7 @@ function HistoryScanRoute({ user }) {
 
 function AppRoutes({ user, authReady, setUser, setAuthReady }) {
   const navigate = useNavigate();
+  const allergenAPI = useAllergens(user);
 
   async function handleResult(data, src, imageBase64) {
     let imageUrl = null;
@@ -100,83 +103,96 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
 
   if (!authReady) {
     return (
-      <div style={{
-        position: 'fixed', inset: 0,
-        background: 'var(--bg)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <span style={{
-          width: 28, height: 28, borderRadius: '50%',
-          border: '2px solid var(--border)', borderTopColor: 'var(--sage)',
-          display: 'block', animation: 'spin 0.7s linear infinite',
-        }} />
-      </div>
+      <AllergenContext.Provider value={allergenAPI}>
+        <div style={{
+          position: 'fixed', inset: 0,
+          background: 'var(--bg)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span style={{
+            width: 28, height: 28, borderRadius: '50%',
+            border: '2px solid var(--border)', borderTopColor: 'var(--sage)',
+            display: 'block', animation: 'spin 0.7s linear infinite',
+          }} />
+        </div>
+      </AllergenContext.Provider>
     );
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          user
-            ? <Navigate to="/home" replace />
-            : <LoginScreen onSignedIn={(u) => { setUser(u); setAuthReady(true); }} />
-        }
-      />
-      <Route
-        path="/home"
-        element={
-          <RequireAuth user={user} authReady={authReady}>
-            <HomeRoute
-              user={user}
-              onScan={() => navigate('/scan')}
-              onHistory={() => navigate('/history')}
-            />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/scan"
-        element={
-          <RequireAuth user={user} authReady={authReady}>
-            <ScanScreen
-              onResult={handleResult}
-              onBack={() => navigate('/home')}
-            />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/results"
-        element={
-          <RequireAuth user={user} authReady={authReady}>
-            <ResultsRoute />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/history"
-        element={
-          <RequireAuth user={user} authReady={authReady}>
-            <HistoryScreen
-              user={user}
-              onBack={() => navigate('/home')}
-              onSelect={(scan) => navigate(`/history/${scan.id}`, { state: { scan } })}
-            />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/history/:scanId"
-        element={
-          <RequireAuth user={user} authReady={authReady}>
-            <HistoryScanRoute user={user} />
-          </RequireAuth>
-        }
-      />
-      <Route path="*" element={<Navigate to={user ? '/home' : '/'} replace />} />
-    </Routes>
+    <AllergenContext.Provider value={allergenAPI}>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            user
+              ? <Navigate to="/home" replace />
+              : <LoginScreen onSignedIn={(u) => { setUser(u); setAuthReady(true); }} />
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <HomeRoute
+                user={user}
+                onScan={() => navigate('/scan')}
+                onHistory={() => navigate('/history')}
+                onAllergens={() => navigate('/allergens')}
+              />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/scan"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <ScanScreen
+                onResult={handleResult}
+                onBack={() => navigate('/home')}
+              />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/results"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <ResultsRoute />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <HistoryScreen
+                user={user}
+                onBack={() => navigate('/home')}
+                onSelect={(scan) => navigate(`/history/${scan.id}`, { state: { scan } })}
+              />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/history/:scanId"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <HistoryScanRoute user={user} />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/allergens"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <AllergensScreen onBack={() => navigate('/home')} />
+            </RequireAuth>
+          }
+        />
+        <Route path="*" element={<Navigate to={user ? '/home' : '/'} replace />} />
+      </Routes>
+    </AllergenContext.Provider>
   );
 }
 
