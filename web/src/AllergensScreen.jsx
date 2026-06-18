@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAllergenContext } from './useAllergens';
 import './AllergensScreen.css';
 
@@ -23,6 +23,23 @@ function AddSheet({ onSave, onClose }) {
   const [name, setName] = useState('');
   const [type, setType] = useState('allergy');
   const [saving, setSaving] = useState(false);
+  const sheetRef = useRef(null);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    function adjust() {
+      if (!sheetRef.current) return;
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      sheetRef.current.style.transform = `translateY(-${offset}px)`;
+    }
+    vv.addEventListener('resize', adjust);
+    vv.addEventListener('scroll', adjust);
+    return () => {
+      vv.removeEventListener('resize', adjust);
+      vv.removeEventListener('scroll', adjust);
+    };
+  }, []);
 
   async function handleSave() {
     if (!name.trim()) return;
@@ -33,7 +50,7 @@ function AddSheet({ onSave, onClose }) {
 
   return (
     <div className="allergen-sheet-backdrop" onClick={onClose}>
-      <div className="allergen-sheet" onClick={e => e.stopPropagation()}>
+      <div className="allergen-sheet" ref={sheetRef} onClick={e => e.stopPropagation()}>
         <div className="allergen-sheet-handle" />
         <h2 className="allergen-sheet-title">Add ingredient</h2>
         <input
