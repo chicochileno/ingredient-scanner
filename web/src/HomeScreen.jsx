@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase';
+import { useAllergenContext } from './useAllergens';
 import './HomeScreen.css';
 
 function CameraIcon() {
@@ -17,6 +18,14 @@ function HistoryIcon() {
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10"/>
       <polyline points="12 6 12 12 16 14"/>
+    </svg>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
     </svg>
   );
 }
@@ -67,9 +76,10 @@ function AboutSheet({ onClose }) {
   );
 }
 
-export default function HomeScreen({ user, onScan, onHistory }) {
+export default function HomeScreen({ user, onScan, onHistory, onAllergens }) {
   const firstName = user.displayName?.split(' ')[0] || 'there';
   const [showAbout, setShowAbout] = useState(false);
+  const { allergens } = useAllergenContext();
 
   return (
     <div className="home-root">
@@ -104,6 +114,19 @@ export default function HomeScreen({ user, onScan, onHistory }) {
             <span className="home-card-icon"><HistoryIcon /></span>
             <span className="home-card-label">History</span>
             <span className="home-card-desc">View past scans</span>
+          </button>
+
+          <button className="home-card home-card-allergens" onClick={onAllergens}>
+            <span className="home-card-icon"><ShieldIcon /></span>
+            <span className="home-card-label">My Allergens</span>
+            <span className="home-card-desc">
+              {allergens.length > 0
+                ? `${allergens.length} item${allergens.length !== 1 ? 's' : ''}`
+                : 'None set'}
+            </span>
+            {allergens.length > 0 && (
+              <span className="home-allergen-badge">{allergens.length}</span>
+            )}
           </button>
         </div>
       </div>
