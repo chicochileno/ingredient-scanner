@@ -44,8 +44,12 @@ function AddSheet({ onSave, onClose }) {
   async function handleSave() {
     if (!name.trim()) return;
     setSaving(true);
-    await onSave({ name: name.trim(), type });
-    setSaving(false);
+    try {
+      await onSave({ name: name.trim(), type });
+    } catch (err) {
+      console.error('Failed to save allergen:', err);
+      setSaving(false);
+    }
   }
 
   return (
