@@ -37,7 +37,7 @@ export function matchAllergens(rawText, allergens) {
       seen.add(allergen.id);
       flagged.push({
         id: allergen.id,
-        flag: allergen.name,
+        flag: allergen.name.charAt(0).toUpperCase() + allergen.name.slice(1),
         severity: allergen.type === 'allergy' ? 'high' : 'moderate',
         explanation: 'Listed in your personal allergens.',
         matchedOn: ingredients[idx],

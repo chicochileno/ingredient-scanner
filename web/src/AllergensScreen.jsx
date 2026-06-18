@@ -41,6 +41,7 @@ function AddSheet({ onSave, onClose }) {
           placeholder="e.g. onion, gluten, soy..."
           value={name}
           onChange={e => setName(e.target.value)}
+          maxLength={50}
           autoFocus
         />
         <div className="allergen-type-row">

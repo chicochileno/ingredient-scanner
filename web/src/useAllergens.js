@@ -28,6 +28,10 @@ export function useAllergens(user) {
       snap => {
         setAllergens(snap.docs.map(d => ({ id: d.id, ...d.data() })));
         setLoading(false);
+      },
+      err => {
+        console.error('Failed to load allergens:', err);
+        setLoading(false);
       }
     );
     return unsub;
