@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { BrowserMultiFormatReader } from '@zxing/browser';
 import { scanImage, scanBarcode } from './api';
 import './ScanScreen.css';
 
@@ -6,7 +7,7 @@ export default function ScanScreen({ onResult, onBack }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-const [mode, setMode] = useState('label');
+  const [mode, setMode] = useState('label');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
@@ -40,6 +41,37 @@ const [mode, setMode] = useState('label');
     return stopCamera;
   }, []);
 
+  // ZXing continuous barcode scanning — active only in barcode mode
+  useEffect(() => {
+    if (mode !== 'barcode' || !cameraReady) return;
+
+    const reader = new BrowserMultiFormatReader();
+    let triggered = false;
+
+    reader.decodeFromVideoElement(videoRef.current, async (result, _err, controls) => {
+      if (triggered) return;
+      if (result) {
+        triggered = true;
+        controls.stop();
+        setLoading(true);
+        setError(null);
+        try {
+          const data = await scanBarcode(result.getText());
+          onResult(data, 'barcode', null);
+        } catch (e) {
+          setError(e.message);
+          setLoading(false);
+          triggered = false;
+        }
+      }
+    }).catch(() => {});
+
+    return () => {
+      triggered = true;
+      try { reader.reset(); } catch {}
+    };
+  }, [mode, cameraReady]);
+
   async function handleCapture() {
     if (!cameraReady || loading) return;
     const video = videoRef.current;
@@ -52,32 +84,6 @@ const [mode, setMode] = useState('label');
     try {
       const result = await scanImage(base64);
       onResult(result, 'camera', base64);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleBarcodeCapture() {
-    if (!cameraReady || loading) return;
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/scan/image`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: base64, detectBarcode: true }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Scan failed');
-      onResult(data, 'barcode', base64);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -101,7 +107,7 @@ const [mode, setMode] = useState('label');
           )}
           <h1 className="scan-title">Ingredient Scanner</h1>
           <p className="scan-sub">
-            {mode === 'label' ? 'Point at an ingredient list' : 'Take a photo of the barcode'}
+            {mode === 'label' ? 'Point at an ingredient list' : 'Hold barcode steady in frame'}
           </p>
         </div>
 
@@ -122,11 +128,11 @@ const [mode, setMode] = useState('label');
           <div className="mode-toggle">
             <button
               className={`mode-btn ${mode === 'label' ? 'active' : ''}`}
-              onClick={() => setMode('label')}
+              onClick={() => { setMode('label'); setError(null); }}
             >Label</button>
             <button
               className={`mode-btn ${mode === 'barcode' ? 'active' : ''}`}
-              onClick={() => setMode('barcode')}
+              onClick={() => { setMode('barcode'); setError(null); }}
             >Barcode</button>
           </div>
 
@@ -141,20 +147,19 @@ const [mode, setMode] = useState('label');
           )}
 
           {mode === 'barcode' && (
-            <button
-              className={`capture-btn ${loading ? 'loading' : ''}`}
-              onClick={handleBarcodeCapture}
-              disabled={loading || !cameraReady}
-            >
-              {loading ? <span className="spinner" /> : <span className="capture-inner" />}
-            </button>
+            <div className="barcode-status">
+              {loading
+                ? <span className="spinner white" />
+                : <span className="barcode-scanning-label">Auto-scanning…</span>
+              }
+            </div>
           )}
         </div>
 
         {error && (
           <div className="scan-error">
             <span>{error}</span>
-            <button onClick={() => { setError(null); if (mode === 'label') startCamera(); }}>Retry</button>
+            <button onClick={() => setError(null)}>Dismiss</button>
           </div>
         )}
       </div>
