@@ -96,13 +96,13 @@ async function webhookHandler(req, res) {
       case 'customer.subscription.deleted':
       case 'invoice.payment_failed': {
         const customerId = event.data.object.customer;
-        const snap = await admin.firestore()
-          .collectionGroup('billing')
-          .where('stripeCustomerId', '==', customerId)
-          .limit(1)
-          .get();
-        if (!snap.empty) {
-          await snap.docs[0].ref.set({ subscriptionStatus: 'cancelled' }, { merge: true });
+        // Look up the Firebase UID from the Stripe customer's metadata
+        // (set when the customer was created). Avoids needing a Firestore
+        // collection-group index to reverse-lookup by customer ID.
+        const customer = await getStripe().customers.retrieve(customerId);
+        const uid = customer && !customer.deleted ? customer.metadata?.firebaseUid : null;
+        if (uid) {
+          await updateBilling(uid, { subscriptionStatus: 'cancelled' });
         }
         break;
       }
