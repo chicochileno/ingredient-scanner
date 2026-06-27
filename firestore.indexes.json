@@ -1,0 +1,12 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "billing",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "stripeCustomerId", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
