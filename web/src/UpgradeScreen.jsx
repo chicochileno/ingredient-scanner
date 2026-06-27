@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCheckoutSession } from './api';
+import { useBillingContext } from './useBilling';
 import './UpgradeScreen.css';
 
 export function UpgradeScreen({ onBack }) {
@@ -77,21 +78,54 @@ export function UpgradeScreen({ onBack }) {
 
 export function UpgradeSuccessScreen() {
   const navigate = useNavigate();
+  const { subscriptionStatus } = useBillingContext();
+  const isActive = subscriptionStatus === 'active';
+  const [waitedLongEnough, setWaitedLongEnough] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => navigate('/home', { replace: true }), 2500);
+    if (isActive) {
+      const t = setTimeout(() => navigate('/home', { replace: true }), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setWaitedLongEnough(true), 30000);
     return () => clearTimeout(t);
   }, []);
+
+  if (isActive) {
+    return (
+      <div className="upgrade-root upgrade-success-root">
+        <div className="upgrade-content">
+          <div className="upgrade-icon">🎉</div>
+          <h1 className="upgrade-title">You're all set!</h1>
+          <p className="upgrade-sub">Your subscription is active.<br />Scan unlimited products.</p>
+          <button className="upgrade-btn" onClick={() => navigate('/home', { replace: true })}>
+            Start scanning
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="upgrade-root upgrade-success-root">
       <div className="upgrade-content">
-        <div className="upgrade-icon">🎉</div>
-        <h1 className="upgrade-title">You're all set!</h1>
-        <p className="upgrade-sub">Your subscription is active.<br />Scan unlimited products.</p>
-        <button className="upgrade-btn" onClick={() => navigate('/home', { replace: true })}>
-          Start scanning
-        </button>
+        <div className="upgrade-icon">🌿</div>
+        <h1 className="upgrade-title">Confirming your<br />subscription…</h1>
+        <p className="upgrade-sub">This usually takes a few seconds.</p>
+        <span className="upgrade-spinner upgrade-spinner-dark" />
+        {waitedLongEnough && (
+          <>
+            <p className="upgrade-sub" style={{ marginTop: 20 }}>
+              Taking longer than expected. Your subscription will activate shortly.
+            </p>
+            <button className="upgrade-btn" onClick={() => navigate('/home', { replace: true })}>
+              Continue
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
