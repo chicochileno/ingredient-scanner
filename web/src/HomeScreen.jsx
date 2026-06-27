@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase';
 import { useAllergenContext } from './useAllergens';
+import { useBillingContext } from './useBilling';
+import { createCustomerPortalSession } from './api';
 import './HomeScreen.css';
 
 function CameraIcon() {
@@ -76,10 +78,22 @@ function AboutSheet({ onClose }) {
   );
 }
 
-export default function HomeScreen({ user, onScan, onHistory, onAllergens }) {
+export default function HomeScreen({ user, onScan, onHistory, onAllergens, onUpgrade }) {
   const firstName = user.displayName?.split(' ')[0] || 'there';
   const [showAbout, setShowAbout] = useState(false);
   const { allergens } = useAllergenContext();
+  const { scanCount, subscriptionStatus, loading: billingLoading } = useBillingContext();
+  const isSubscribed = subscriptionStatus === 'active';
+  const atLimit = !isSubscribed && scanCount >= 10;
+
+  async function handleManageSubscription() {
+    try {
+      const { url } = await createCustomerPortalSession();
+      window.location.href = url;
+    } catch {
+      // silently fail — user can manage at stripe.com
+    }
+  }
 
   return (
     <div className="home-root">
@@ -104,7 +118,7 @@ export default function HomeScreen({ user, onScan, onHistory, onAllergens }) {
         </div>
 
         <div className="home-cards">
-          <button className="home-card home-card-scan" onClick={onScan}>
+          <button className="home-card home-card-scan" onClick={atLimit ? onUpgrade : onScan}>
             <span className="home-card-icon"><CameraIcon /></span>
             <span className="home-card-label">Scan</span>
             <span className="home-card-desc">Label or barcode</span>
@@ -129,9 +143,33 @@ export default function HomeScreen({ user, onScan, onHistory, onAllergens }) {
             )}
           </button>
         </div>
+
+        {!isSubscribed && !billingLoading && (
+          <div className="scan-counter">
+            <div className="scan-counter-row">
+              <span className="scan-counter-label">
+                {atLimit ? 'Free scans used up' : `${scanCount} of 10 free scans used`}
+              </span>
+              <button className="scan-counter-upgrade" onClick={onUpgrade}>
+                Upgrade
+              </button>
+            </div>
+            <div className="scan-counter-bar">
+              <div
+                className="scan-counter-fill"
+                style={{ width: `${Math.min((scanCount / 10) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="home-footer">
+        {isSubscribed && (
+          <button className="home-footer-btn" onClick={handleManageSubscription}>
+            Manage subscription
+          </button>
+        )}
         <button className="home-footer-btn" onClick={() => setShowAbout(true)}>
           How are ingredients flagged?
         </button>

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { scanImage, scanBarcode } from './api';
 import './ScanScreen.css';
@@ -11,6 +12,7 @@ export default function ScanScreen({ onResult, onBack }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const navigate = useNavigate();
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -59,6 +61,10 @@ export default function ScanScreen({ onResult, onBack }) {
           const data = await scanBarcode(result.getText());
           onResult(data, 'barcode', null);
         } catch (e) {
+          if (e.message === 'scan_limit_reached') {
+            navigate('/upgrade');
+            return;
+          }
           setError(e.message);
           setLoading(false);
           triggered = false;
@@ -85,6 +91,10 @@ export default function ScanScreen({ onResult, onBack }) {
       const result = await scanImage(base64);
       onResult(result, 'camera', base64);
     } catch (e) {
+      if (e.message === 'scan_limit_reached') {
+        navigate('/upgrade');
+        return;
+      }
       setError(e.message);
     } finally {
       setLoading(false);

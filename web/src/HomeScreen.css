@@ -370,3 +370,49 @@
   padding: 0 6px;
   flex-shrink: 0;
 }
+
+/* Scan counter */
+.scan-counter {
+  margin: 0 0 4px;
+  animation: fadeUp 0.35s 0.1s ease both;
+}
+
+.scan-counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.scan-counter-label {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.scan-counter-upgrade {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--sage);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.scan-counter-bar {
+  height: 5px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.scan-counter-fill {
+  height: 100%;
+  background: var(--sage);
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
