@@ -1,21 +1,11 @@
 const express = require('express');
 const { OAuth2Client } = require('google-auth-library');
-const admin = require('firebase-admin');
+const admin = require('../utils/firebaseAdmin');
 
 const router = express.Router();
 
 const CALLBACK_URL = 'https://precious-acceptance-production.up.railway.app/auth/google/callback';
 const FRONTEND_URL = 'https://scanner.joelrog.com';
-
-// Initialize Firebase Admin (only once)
-if (!admin.apps.length) {
-  try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-  } catch (e) {
-    console.error('Firebase Admin init failed:', e.message);
-  }
-}
 
 function getOAuthClient() {
   return new OAuth2Client(
