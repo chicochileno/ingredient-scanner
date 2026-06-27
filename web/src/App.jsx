@@ -11,6 +11,8 @@ import ResultsScreen from './ResultsScreen';
 import HistoryScreen from './HistoryScreen';
 import { useAllergens, AllergenContext } from './useAllergens';
 import AllergensScreen from './AllergensScreen';
+import { useBilling, BillingContext } from './useBilling';
+import { UpgradeScreen, UpgradeSuccessScreen } from './UpgradeScreen';
 
 function RequireAuth({ user, authReady, children }) {
   if (!authReady) return null;
@@ -18,8 +20,8 @@ function RequireAuth({ user, authReady, children }) {
   return children;
 }
 
-function HomeRoute({ user, onScan, onHistory, onAllergens }) {
-  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onAllergens={onAllergens} />;
+function HomeRoute({ user, onScan, onHistory, onAllergens, onUpgrade }) {
+  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onAllergens={onAllergens} onUpgrade={onUpgrade} />;
 }
 
 function ResultsRoute() {
@@ -72,6 +74,7 @@ function HistoryScanRoute({ user }) {
 function AppRoutes({ user, authReady, setUser, setAuthReady }) {
   const navigate = useNavigate();
   const allergenAPI = useAllergens(user);
+  const billing = useBilling(user);
 
   async function handleResult(data, src, imageBase64) {
     let imageUrl = null;
@@ -104,24 +107,27 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
   if (!authReady) {
     return (
       <AllergenContext.Provider value={allergenAPI}>
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: 'var(--bg)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <span style={{
-            width: 28, height: 28, borderRadius: '50%',
-            border: '2px solid var(--border)', borderTopColor: 'var(--sage)',
-            display: 'block', animation: 'spin 0.7s linear infinite',
-          }} />
-        </div>
+        <BillingContext.Provider value={billing}>
+          <div style={{
+            position: 'fixed', inset: 0,
+            background: 'var(--bg)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{
+              width: 28, height: 28, borderRadius: '50%',
+              border: '2px solid var(--border)', borderTopColor: 'var(--sage)',
+              display: 'block', animation: 'spin 0.7s linear infinite',
+            }} />
+          </div>
+        </BillingContext.Provider>
       </AllergenContext.Provider>
     );
   }
 
   return (
     <AllergenContext.Provider value={allergenAPI}>
-      <Routes>
+      <BillingContext.Provider value={billing}>
+        <Routes>
         <Route
           path="/"
           element={
@@ -139,6 +145,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
                 onScan={() => navigate('/scan')}
                 onHistory={() => navigate('/history')}
                 onAllergens={() => navigate('/allergens')}
+                onUpgrade={() => navigate('/upgrade')}
               />
             </RequireAuth>
           }
@@ -190,8 +197,25 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
             </RequireAuth>
           }
         />
+        <Route
+          path="/upgrade"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <UpgradeScreen onBack={() => navigate('/home')} />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/upgrade/success"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <UpgradeSuccessScreen />
+            </RequireAuth>
+          }
+        />
         <Route path="*" element={<Navigate to={user ? '/home' : '/'} replace />} />
-      </Routes>
+        </Routes>
+      </BillingContext.Provider>
     </AllergenContext.Provider>
   );
 }
