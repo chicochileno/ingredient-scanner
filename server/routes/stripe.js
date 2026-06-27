@@ -109,6 +109,7 @@ async function webhookHandler(req, res) {
     }
   } catch (err) {
     console.error('Webhook processing error:', err.message);
+    return res.status(500).json({ error: 'Webhook processing failed' });
   }
 
   res.json({ received: true });
