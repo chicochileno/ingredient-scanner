@@ -4,8 +4,8 @@ const admin = require('../utils/firebaseAdmin');
 
 const router = express.Router();
 
-const CALLBACK_URL = 'https://precious-acceptance-production.up.railway.app/auth/google/callback';
-const FRONTEND_URL = 'https://scanner.joelrog.com';
+const CALLBACK_URL = process.env.CALLBACK_URL || 'https://precious-acceptance-production.up.railway.app/auth/google/callback';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://scanner.joelrog.com';
 
 function getOAuthClient() {
   return new OAuth2Client(
