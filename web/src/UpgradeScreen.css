@@ -1,0 +1,139 @@
+.upgrade-root {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top, 52px) 0 env(safe-area-inset-bottom, 32px);
+}
+
+.upgrade-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--sage);
+  cursor: pointer;
+  padding: 12px 20px;
+  min-height: 44px;
+  align-self: flex-start;
+}
+
+.upgrade-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 28px 24px;
+  text-align: center;
+}
+
+.upgrade-success-root .upgrade-content {
+  justify-content: center;
+  padding-top: 0;
+}
+
+.upgrade-icon {
+  font-size: 52px;
+  margin-bottom: 16px;
+}
+
+.upgrade-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.upgrade-sub {
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.upgrade-features {
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 6px 0;
+  margin-bottom: 28px;
+  text-align: left;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.upgrade-feature {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.upgrade-feature:last-child { border-bottom: none; }
+
+.upgrade-check {
+  color: var(--sage);
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.upgrade-feature-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.upgrade-feature-desc {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.upgrade-error {
+  color: var(--danger);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.upgrade-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.upgrade-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.upgrade-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: block;
+}
+
+.upgrade-legal {
+  font-size: 12px;
+  color: var(--ink-3);
+}
