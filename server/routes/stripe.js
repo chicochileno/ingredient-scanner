@@ -23,7 +23,19 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
   try {
     const billing = await getBilling(req.uid);
 
+    // Verify the saved customer still exists in the current Stripe environment.
+    // A stored ID can be stale (e.g. Stripe keys rotated to a different account
+    // or the customer was deleted), so fall through to creating a fresh one.
     let customerId = billing.stripeCustomerId;
+    if (customerId) {
+      try {
+        const existing = await getStripe().customers.retrieve(customerId);
+        if (existing.deleted) customerId = null;
+      } catch {
+        customerId = null;
+      }
+    }
+
     if (!customerId) {
       const userRecord = await admin.auth().getUser(req.uid);
       const customer = await getStripe().customers.create({
