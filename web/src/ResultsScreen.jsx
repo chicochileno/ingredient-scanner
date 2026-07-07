@@ -18,13 +18,13 @@ function Sources({ citations }) {
   if (!citations || citations.length === 0) return null;
   return (
     <div className="card-sources">
-      <button className="card-sources-toggle" onClick={() => setOpen((o) => !o)}>
+      <button className="card-sources-toggle" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         {open ? 'Hide sources' : 'Sources'}
       </button>
       {open && (
         <ul className="card-sources-list">
           {citations.map((c, i) => (
-            <li key={i}>
+            <li key={c.url ?? i}>
               {c.url ? (
                 <a href={c.url} target="_blank" rel="noopener noreferrer">{c.title}</a>
               ) : (

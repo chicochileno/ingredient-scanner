@@ -62,6 +62,7 @@ function HistoryScanRoute({ user }) {
     }
 
     if (state?.scan) {
+      // loading stays false here intentionally — render stored flags immediately, update quietly after rematch
       refreshFlags(state.scan).then((s) => { if (!cancelled) setScan(s); });
       return () => { cancelled = true; };
     }
