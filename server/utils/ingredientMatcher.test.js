@@ -34,3 +34,17 @@ test('negator does not suppress a real dairy match', () => {
   const flags = matchIngredients('Water, Goat Milk, Sugar');
   assert.ok(flags.find((f) => f.id === 'casein'), 'goat milk should still flag dairy');
 });
+
+test('ambiguous synonym resolves to the soft "possible" tier', () => {
+  const flags = matchIngredients('Sugar, Soy Lecithin, Salt');
+  const soy = flags.find((f) => f.id === 'soy');
+  assert.ok(soy, 'expected soy to be flagged');
+  assert.strictEqual(soy.tier, 'possible');
+});
+
+test('non-ambiguous synonym for the same entry stays confident', () => {
+  const flags = matchIngredients('Soybean Oil, Salt');
+  const soy = flags.find((f) => f.id === 'soy');
+  assert.ok(soy);
+  assert.strictEqual(soy.tier, 'confident');
+});

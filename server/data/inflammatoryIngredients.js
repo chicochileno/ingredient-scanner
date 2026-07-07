@@ -273,11 +273,11 @@ const ingredients = [
   {
     id: 'soy',
     names: [
+      'soy lecithin',
       'soy',
       'soya',
       'soybean',
       'soy protein',
-      'soy lecithin',
       'textured vegetable protein',
       'tvp',
       'edamame',
@@ -285,6 +285,7 @@ const ingredients = [
       'tempeh',
       'miso',
     ],
+    ambiguousNames: ['soy lecithin'],
     category: 'Soy',
     severity: SEVERITY.MODERATE,
     flag: 'Soy / Phytoestrogen Source',
