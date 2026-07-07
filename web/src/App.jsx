@@ -13,6 +13,7 @@ import { useAllergens, AllergenContext } from './useAllergens';
 import AllergensScreen from './AllergensScreen';
 import { useBilling, BillingContext } from './useBilling';
 import { UpgradeScreen, UpgradeSuccessScreen } from './UpgradeScreen';
+import { rematch } from './api';
 
 function RequireAuth({ user, authReady, children }) {
   if (!authReady) return null;
@@ -47,14 +48,39 @@ function HistoryScanRoute({ user }) {
   const [loading, setLoading] = useState(!state?.scan);
 
   useEffect(() => {
-    if (state?.scan) return;
+    let cancelled = false;
+
+    async function refreshFlags(loaded) {
+      if (!loaded?.rawText) return loaded;
+      try {
+        const { flagged } = await rematch(loaded.rawText);
+        return { ...loaded, flagged };
+      } catch (e) {
+        console.error('Rematch failed, showing stored flags', e);
+        return loaded;
+      }
+    }
+
+    if (state?.scan) {
+      refreshFlags(state.scan).then((s) => { if (!cancelled) setScan(s); });
+      return () => { cancelled = true; };
+    }
+
     getDoc(doc(db, 'users', user.uid, 'scans', scanId))
-      .then(d => {
-        if (d.exists()) setScan({ id: d.id, ...d.data() });
-        else navigate('/history', { replace: true });
+      .then(async (d) => {
+        if (cancelled) return;
+        if (d.exists()) {
+          const loaded = { id: d.id, ...d.data() };
+          const refreshed = await refreshFlags(loaded);
+          if (!cancelled) setScan(refreshed);
+        } else {
+          navigate('/history', { replace: true });
+        }
       })
       .catch(() => navigate('/history', { replace: true }))
-      .finally(() => setLoading(false));
+      .finally(() => { if (!cancelled) setLoading(false); });
+
+    return () => { cancelled = true; };
   }, [scanId]);
 
   if (loading) return null;
