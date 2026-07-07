@@ -17,6 +17,10 @@ const ingredients = [
     flag: 'Artificial Dye — Red 40',
     explanation:
       'Red 40 (Allura Red) is a petroleum-derived dye linked to hyperactivity and behavioral changes in children. The Feingold Association and multiple European studies associate it with increased ADHD symptoms. Often removed from diets in autism intervention programs.',
+    citations: [
+      { title: 'McCann et al., "Food additives and hyperactive behaviour" — The Lancet (2007)', url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(07)61306-3/fulltext' },
+      { title: 'FDA — Color Additives in Foods', url: 'https://www.fda.gov/food/food-additives-petitions/color-additives-foods' },
+    ],
   },
   {
     id: 'yellow5',
@@ -26,6 +30,9 @@ const ingredients = [
     flag: 'Artificial Dye — Yellow 5',
     explanation:
       'Tartrazine (Yellow 5) is associated with hyperactivity and allergic reactions in sensitive children. Required to carry a warning label in the EU. Commonly targeted in autism elimination diets.',
+    citations: [
+      { title: 'McCann et al., "Food additives and hyperactive behaviour" — The Lancet (2007)', url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(07)61306-3/fulltext' },
+    ],
   },
   {
     id: 'yellow6',
@@ -100,6 +107,9 @@ const ingredients = [
     flag: 'Preservative — Sodium Benzoate',
     explanation:
       'Sodium benzoate, when combined with Vitamin C, can form benzene (a known carcinogen). The McCann Southampton study directly linked it to increased hyperactivity in children. One of the most widely flagged preservatives in autism dietary literature.',
+    citations: [
+      { title: 'McCann et al., "Food additives and hyperactive behaviour" — The Lancet (2007)', url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(07)61306-3/fulltext' },
+    ],
   },
   {
     id: 'tbhq',
@@ -170,7 +180,7 @@ const ingredients = [
   },
   {
     id: 'acesulfamek',
-    names: ['acesulfame k', 'acesulfame potassium', 'ace-k', 'sunett', 'sweet one'],
+    names: ['acesulfame k', 'acesulfame potassium', 'sunett', 'sweet one'],
     category: 'Artificial Sweetener',
     severity: SEVERITY.MODERATE,
     flag: 'Artificial Sweetener — Acesulfame-K',

@@ -48,3 +48,10 @@ test('non-ambiguous synonym for the same entry stays confident', () => {
   assert.ok(soy);
   assert.strictEqual(soy.tier, 'confident');
 });
+
+test('citations flow through to flagged output when present', () => {
+  const flags = matchIngredients('Sugar, Red 40, Salt');
+  const red = flags.find((f) => f.id === 'red40');
+  assert.ok(Array.isArray(red.citations) && red.citations.length > 0, 'red40 should carry citations');
+  assert.ok(red.citations[0].title, 'citation needs a title');
+});
