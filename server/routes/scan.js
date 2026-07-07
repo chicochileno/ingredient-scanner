@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const { matchIngredients } = require('../utils/ingredientMatcher');
+const { getMatchOptions, addDismissedFlag } = require('../utils/userMatchData');
 const requireAuth = require('../middleware/requireAuth');
 const { getBilling, tryConsumeScan } = require('../utils/billing');
 
@@ -76,7 +77,8 @@ router.post('/image', requireAuth, async (req, res) => {
         if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
         return res.json({ productName, imageUrl, upc, rawText: '', flagged: [], ingredientCount: 0 });
       }
-      const flagged = matchIngredients(rawIngredients);
+      const matchOptions = await getMatchOptions(req.uid);
+      const flagged = matchIngredients(rawIngredients, matchOptions);
       const consumed = await tryConsumeScan(req.uid);
       if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
       return res.json({ productName, imageUrl, upc, rawText: rawIngredients, flagged, ingredientCount: flagged.length });
@@ -88,7 +90,8 @@ router.post('/image', requireAuth, async (req, res) => {
 
     const rawText = annotations.fullTextAnnotation.text;
     const ingredientsText = extractIngredientsSection(rawText);
-    const flagged = matchIngredients(ingredientsText);
+    const matchOptions = await getMatchOptions(req.uid);
+    const flagged = matchIngredients(ingredientsText, matchOptions);
     const consumed = await tryConsumeScan(req.uid);
     if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
     res.json({ rawText, flagged, ingredientCount: flagged.length });
@@ -103,7 +106,8 @@ router.post('/text', requireAuth, async (req, res) => {
   if (!text) return res.status(400).json({ error: 'text required' });
   const allowed = await tryConsumeScan(req.uid);
   if (!allowed) return res.status(403).json({ error: 'scan_limit_reached' });
-  const flagged = matchIngredients(text);
+  const matchOptions = await getMatchOptions(req.uid);
+  const flagged = matchIngredients(text, matchOptions);
   res.json({ rawText: text, flagged, ingredientCount: flagged.length });
 });
 
@@ -130,7 +134,8 @@ router.get('/barcode/:upc', requireAuth, async (req, res) => {
       if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
       return res.json({ productName, imageUrl, rawText: '', flagged: [], ingredientCount: 0 });
     }
-    const flagged = matchIngredients(rawIngredients);
+    const matchOptions = await getMatchOptions(req.uid);
+    const flagged = matchIngredients(rawIngredients, matchOptions);
     const consumed = await tryConsumeScan(req.uid);
     if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
     res.json({ productName, imageUrl, rawText: rawIngredients, flagged, ingredientCount: flagged.length });
