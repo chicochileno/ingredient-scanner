@@ -159,4 +159,21 @@ router.post('/dismiss', requireAuth, async (req, res) => {
   }
 });
 
+// Re-run matching on already-stored text (e.g. history views). Does NOT consume a scan.
+router.post('/rematch', requireAuth, async (req, res) => {
+  const { rawText } = req.body;
+  if (typeof rawText !== 'string') {
+    return res.status(400).json({ error: 'rawText required' });
+  }
+  if (!rawText.trim()) return res.json({ flagged: [] });
+  try {
+    const matchOptions = await getMatchOptions(req.uid);
+    const flagged = matchIngredients(rawText, matchOptions);
+    res.json({ flagged });
+  } catch (err) {
+    console.error('Rematch error:', err.message);
+    res.status(500).json({ error: 'Failed to rematch' });
+  }
+});
+
 module.exports = router;
