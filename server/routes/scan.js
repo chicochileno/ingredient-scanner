@@ -145,4 +145,18 @@ router.get('/barcode/:upc', requireAuth, async (req, res) => {
   }
 });
 
+router.post('/dismiss', requireAuth, async (req, res) => {
+  const { ingredientId } = req.body;
+  if (!ingredientId || typeof ingredientId !== 'string') {
+    return res.status(400).json({ error: 'ingredientId required' });
+  }
+  try {
+    await addDismissedFlag(req.uid, ingredientId);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Dismiss error:', err.message);
+    res.status(500).json({ error: 'Failed to dismiss flag' });
+  }
+});
+
 module.exports = router;
