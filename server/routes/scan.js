@@ -150,6 +150,9 @@ router.post('/dismiss', requireAuth, async (req, res) => {
   if (!ingredientId || typeof ingredientId !== 'string') {
     return res.status(400).json({ error: 'ingredientId required' });
   }
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(ingredientId)) {
+    return res.status(400).json({ error: 'Invalid ingredientId' });
+  }
   try {
     await addDismissedFlag(req.uid, ingredientId);
     res.json({ ok: true });
