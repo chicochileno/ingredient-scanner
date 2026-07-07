@@ -55,3 +55,38 @@ test('citations flow through to flagged output when present', () => {
   assert.ok(Array.isArray(red.citations) && red.citations.length > 0, 'red40 should carry citations');
   assert.ok(red.citations[0].title, 'citation needs a title');
 });
+
+test('personal allergen matches variants at word boundaries', () => {
+  const personalAllergens = [{ id: 'a1', name: 'onion', type: 'allergy' }];
+  const flags = matchIngredients('Water, Onion Powder, Salt', { personalAllergens });
+  const onion = flags.find((f) => f.id === 'a1');
+  assert.ok(onion, 'expected personal allergen to match "onion powder"');
+  assert.strictEqual(onion.source, 'personal');
+  assert.strictEqual(onion.severity, 'high'); // type 'allergy' -> high
+  assert.strictEqual(onion.tier, 'confident');
+});
+
+test('sensitivity-type personal allergen maps to moderate', () => {
+  const personalAllergens = [{ id: 'a2', name: 'garlic', type: 'sensitivity' }];
+  const flags = matchIngredients('Roasted Garlic, Salt', { personalAllergens });
+  const garlic = flags.find((f) => f.id === 'a2');
+  assert.ok(garlic);
+  assert.strictEqual(garlic.severity, 'moderate');
+});
+
+test('dismissed ids are filtered out', () => {
+  const flags = matchIngredients('Sugar, Red 40, Salt', { dismissedIds: new Set(['red40']) });
+  assert.strictEqual(flags.find((f) => f.id === 'red40'), undefined);
+});
+
+test('dismissedIds also accepts a plain array', () => {
+  const flags = matchIngredients('Sugar, Red 40, Salt', { dismissedIds: ['red40'] });
+  assert.strictEqual(flags.find((f) => f.id === 'red40'), undefined);
+});
+
+test('possible-tier flags sort after confident flags', () => {
+  const flags = matchIngredients('Red 40, Soy Lecithin');
+  const redIdx = flags.findIndex((f) => f.id === 'red40');
+  const soyIdx = flags.findIndex((f) => f.id === 'soy');
+  assert.ok(redIdx < soyIdx, 'confident flag should come before possible flag');
+});
