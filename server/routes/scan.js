@@ -168,6 +168,9 @@ router.post('/rematch', requireAuth, async (req, res) => {
   if (typeof rawText !== 'string') {
     return res.status(400).json({ error: 'rawText required' });
   }
+  if (rawText.length > 20000) {
+    return res.status(400).json({ error: 'rawText too long' });
+  }
   if (!rawText.trim()) return res.json({ flagged: [] });
   try {
     const matchOptions = await getMatchOptions(req.uid);
