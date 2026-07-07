@@ -82,6 +82,7 @@ function matchIngredients(rawText, options = {}) {
       tier: res.tier,
       source: 'curated',
       explanation: entry.explanation,
+      // matchedOn is the full normalized label token (e.g. "enriched wheat flour"), not the bare synonym
       matchedOn: res.matchedOn,
       ...(entry.citations ? { citations: entry.citations } : {}),
     });
