@@ -24,3 +24,13 @@ test('matches a whole word even with extra words around it', () => {
 test('returns empty array for empty input', () => {
   assert.deepStrictEqual(matchIngredients(''), []);
 });
+
+test('negator suppresses a false-positive dairy match', () => {
+  const flags = matchIngredients('Water, Coconut Milk, Sugar');
+  assert.strictEqual(flags.find((f) => f.id === 'casein'), undefined);
+});
+
+test('negator does not suppress a real dairy match', () => {
+  const flags = matchIngredients('Water, Goat Milk, Sugar');
+  assert.ok(flags.find((f) => f.id === 'casein'), 'goat milk should still flag dairy');
+});

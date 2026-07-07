@@ -250,6 +250,7 @@ const ingredients = [
       'lactalbumin',
       'lactoferrin',
     ],
+    negators: ['coconut', 'oat', 'almond', 'soy', 'rice', 'cashew', 'hemp', 'pea', 'flax'],
     category: 'Casein / Dairy',
     severity: SEVERITY.MODERATE,
     flag: 'Casein / Dairy Source',
