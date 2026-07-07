@@ -268,3 +268,46 @@
 .section-title-allergen {
   color: var(--danger);
 }
+
+/* Worth Checking (possible) tier */
+.section-title-possible { color: #6b7280; }
+.card-possible {
+  border-left: 4px solid #9ca3af;
+  background: #f9fafb;
+}
+.flag-severity-possible {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+/* Sources disclosure */
+.card-sources { margin-top: 8px; }
+.card-sources-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.card-sources-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #4b5563;
+}
+.card-sources-list a { color: #2563eb; }
+
+/* Not a concern (dismiss) */
+.card-dismiss {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+}
+.card-dismiss:hover { background: #f3f4f6; }
