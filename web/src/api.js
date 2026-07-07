@@ -56,3 +56,27 @@ export async function createCustomerPortalSession() {
     },
   }));
 }
+
+export async function dismissFlag(ingredientId) {
+  const token = await getToken();
+  return handle(await fetch(`${BASE_URL}/scan/dismiss`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ ingredientId }),
+  }));
+}
+
+export async function rematch(rawText) {
+  const token = await getToken();
+  return handle(await fetch(`${BASE_URL}/scan/rematch`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ rawText }),
+  }));
+}
