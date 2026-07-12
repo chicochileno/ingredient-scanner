@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase';
-import { useAllergenContext } from './useAllergens';
+import { useProfileContext } from './useProfiles';
 import { useBillingContext } from './useBilling';
 import { createCustomerPortalSession } from './api';
 import './HomeScreen.css';
@@ -78,10 +78,10 @@ function AboutSheet({ onClose }) {
   );
 }
 
-export default function HomeScreen({ user, onScan, onHistory, onAllergens, onUpgrade }) {
+export default function HomeScreen({ user, onScan, onHistory, onProfiles, onUpgrade }) {
   const firstName = user.displayName?.split(' ')[0] || 'there';
   const [showAbout, setShowAbout] = useState(false);
-  const { allergens } = useAllergenContext();
+  const { profiles } = useProfileContext();
   const { scanCount, subscriptionStatus, loading: billingLoading } = useBillingContext();
   const isSubscribed = subscriptionStatus === 'active';
   const atLimit = !isSubscribed && scanCount >= 10;
@@ -130,16 +130,16 @@ export default function HomeScreen({ user, onScan, onHistory, onAllergens, onUpg
             <span className="home-card-desc">View past scans</span>
           </button>
 
-          <button className="home-card home-card-allergens" onClick={onAllergens}>
+          <button className="home-card home-card-allergens" onClick={onProfiles}>
             <span className="home-card-icon"><ShieldIcon /></span>
-            <span className="home-card-label">My Allergens</span>
+            <span className="home-card-label">Profiles</span>
             <span className="home-card-desc">
-              {allergens.length > 0
-                ? `${allergens.length} item${allergens.length !== 1 ? 's' : ''}`
-                : 'None set'}
+              {profiles.length <= 1
+                ? "Customize what's flagged"
+                : profiles.map((p) => p.name || 'Unnamed').join(', ')}
             </span>
-            {allergens.length > 0 && (
-              <span className="home-allergen-badge">{allergens.length}</span>
+            {profiles.length > 1 && (
+              <span className="home-allergen-badge">{profiles.length}</span>
             )}
           </button>
         </div>
