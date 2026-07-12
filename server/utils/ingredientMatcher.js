@@ -64,6 +64,10 @@ function matchIngredients(rawText, options = {}) {
       ? options.dismissedIds
       : new Set(options.dismissedIds || []);
 
+  const activeCategorySet = options.activeCategories
+    ? new Set(options.activeCategories)
+    : null; // null = no filter (all curated), preserves System 1 behavior
+
   const tokens = parseIngredientList(rawText || '');
   const flagged = [];
   const seen = new Set();
@@ -71,6 +75,7 @@ function matchIngredients(rawText, options = {}) {
   // Curated inflammatory ingredients
   for (const entry of ingredients) {
     if (seen.has(entry.id)) continue;
+    if (activeCategorySet && !activeCategorySet.has(entry.categoryKey)) continue;
     const res = evaluateEntry(entry, tokens);
     if (!res) continue;
     seen.add(entry.id);

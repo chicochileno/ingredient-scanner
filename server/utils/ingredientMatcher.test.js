@@ -90,3 +90,31 @@ test('possible-tier flags sort after confident flags', () => {
   const soyIdx = flags.findIndex((f) => f.id === 'soy');
   assert.ok(redIdx < soyIdx, 'confident flag should come before possible flag');
 });
+
+test('activeCategories: inactive category is NOT flagged', () => {
+  const flags = matchIngredients('Sugar, Red 40, Salt', { activeCategories: ['dairy'] });
+  assert.strictEqual(flags.find((f) => f.id === 'red40'), undefined);
+});
+
+test('activeCategories: active category IS flagged', () => {
+  const flags = matchIngredients('Water, Milk, Sugar', { activeCategories: ['dairy'] });
+  assert.ok(flags.find((f) => f.id === 'casein'));
+});
+
+test('activeCategories: personal allergens flag regardless of categories', () => {
+  const personalAllergens = [{ id: 'a1', name: 'onion', type: 'allergy' }];
+  const flags = matchIngredients('Onion, Red 40', { activeCategories: ['dairy'], personalAllergens });
+  assert.ok(flags.find((f) => f.id === 'a1'), 'personal allergen should still match');
+  assert.strictEqual(flags.find((f) => f.id === 'red40'), undefined, 'dye not active');
+});
+
+test('activeCategories: empty array flags no curated ingredients', () => {
+  const flags = matchIngredients('Red 40, Milk, Wheat', { activeCategories: [] });
+  assert.strictEqual(flags.length, 0);
+});
+
+test('activeCategories: omitted falls back to all curated (System 1 behavior)', () => {
+  const flags = matchIngredients('Red 40, Milk');
+  assert.ok(flags.find((f) => f.id === 'red40'));
+  assert.ok(flags.find((f) => f.id === 'casein'));
+});
