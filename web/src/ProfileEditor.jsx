@@ -16,17 +16,17 @@ function AllergenAddSheet({ onSave, onClose }) {
   }
   return (
     <div className="allergen-sheet-backdrop" onClick={onClose}>
-      <div className="allergen-sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Add ingredient">
+      <div className="allergen-sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Add ingredient">
         <div className="allergen-sheet-handle" />
         <h2 className="allergen-sheet-title">Add ingredient</h2>
         <label htmlFor="allergen-name" className="pe-label">Ingredient name</label>
         <input id="allergen-name" className="allergen-input" placeholder="e.g. onion" value={name}
           onChange={(e) => setName(e.target.value)} maxLength={50} autoFocus />
-        <div className="allergen-type-row" role="radiogroup" aria-label="Concern level">
-          <button role="radio" aria-checked={type === 'allergy'}
+        <div className="allergen-type-row" role="group" aria-label="Concern level">
+          <button type="button" aria-pressed={type === 'allergy'}
             className={`allergen-type-btn ${type === 'allergy' ? 'allergen-type-btn-active-high' : ''}`}
             onClick={() => setType('allergy')}>Allergy</button>
-          <button role="radio" aria-checked={type === 'sensitivity'}
+          <button type="button" aria-pressed={type === 'sensitivity'}
             className={`allergen-type-btn ${type === 'sensitivity' ? 'allergen-type-btn-active-mod' : ''}`}
             onClick={() => setType('sensitivity')}>Sensitivity</button>
         </div>
