@@ -311,3 +311,11 @@
   cursor: pointer;
 }
 .card-dismiss:hover { background: #f3f4f6; }
+
+.profile-chips { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 4px; }
+.profile-chip { padding:8px 12px; border-radius:999px; border:1px solid var(--border,#e5e7eb);
+  background:#fff; font-size:14px; font-weight:600; cursor:pointer; }
+.profile-chip-flagged { border-color:#fca5a5; color:#b91c1c; }
+.profile-chip-safe { border-color:#86efac; color:#15803d; }
+.profile-chip-sel { outline:2px solid #2563eb; outline-offset:1px; }
+.profile-chip:focus-visible { outline:2px solid #2563eb; outline-offset:2px; }
