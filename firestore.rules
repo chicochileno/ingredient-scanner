@@ -4,9 +4,21 @@ service cloud.firestore {
     match /users/{userId}/scans/{scanId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    // Legacy top-level allergens/dismissedFlags — read (+write) for the owner so the
+    // one-time migration into profiles can copy them. New data lives under profiles.
     match /users/{userId}/allergens/{allergenId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    match /users/{userId}/dismissedFlags/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    // Per-profile data: the profile doc plus its nested allergens/dismissedFlags.
+    // Recursive wildcard covers all nesting under a user's own profiles.
+    match /users/{userId}/profiles/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    // Billing stays read-only for clients (writes happen server-side via Admin/Stripe),
+    // so a client cannot fake subscriptionStatus.
     match /users/{userId}/billing/{document} {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
