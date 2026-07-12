@@ -141,15 +141,12 @@ router.get('/barcode/:upc', requireAuth, async (req, res) => {
 });
 
 router.post('/dismiss', requireAuth, async (req, res) => {
-  const { ingredientId } = req.body;
-  if (!ingredientId || typeof ingredientId !== 'string') {
-    return res.status(400).json({ error: 'ingredientId required' });
-  }
-  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(ingredientId)) {
-    return res.status(400).json({ error: 'Invalid ingredientId' });
-  }
+  const { profileId, ingredientId } = req.body;
+  const idOk = (v) => typeof v === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(v);
+  if (!idOk(profileId)) return res.status(400).json({ error: 'Invalid profileId' });
+  if (!idOk(ingredientId)) return res.status(400).json({ error: 'Invalid ingredientId' });
   try {
-    await addDismissedFlag(req.uid, ingredientId);
+    await addDismissedFlag(req.uid, profileId, ingredientId);
     res.json({ ok: true });
   } catch (err) {
     console.error('Dismiss error:', err.message);
@@ -166,11 +163,9 @@ router.post('/rematch', requireAuth, async (req, res) => {
   if (rawText.length > 20000) {
     return res.status(400).json({ error: 'rawText too long' });
   }
-  if (!rawText.trim()) return res.json({ flagged: [] });
   try {
-    const matchOptions = await getMatchOptions(req.uid);
-    const flagged = matchIngredients(rawText, matchOptions);
-    res.json({ flagged });
+    const profiles = await matchAllProfiles(req.uid, rawText.trim() ? rawText : '');
+    res.json({ profiles, flagged: profiles[0]?.flagged || [] });
   } catch (err) {
     console.error('Rematch error:', err.message);
     res.status(500).json({ error: 'Failed to rematch' });
