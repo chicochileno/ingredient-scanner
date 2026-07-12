@@ -40,3 +40,24 @@ test('a categoryKey exists for each of the expected mappings', () => {
   assert.strictEqual(byId.carrageenan, 'carrageenan');
   assert.strictEqual(byId.aluminum, 'aluminum');
 });
+
+const { PRESETS } = require('./presets');
+
+test('presets: every preset category is a valid canonical key', () => {
+  for (const p of PRESETS) {
+    assert.ok(p.key && p.label, `preset needs key+label`);
+    assert.ok(Array.isArray(p.categories) && p.categories.length > 0);
+    for (const c of p.categories) {
+      assert.ok(KEYS.includes(c), `preset "${p.key}" references unknown category "${c}"`);
+    }
+  }
+});
+
+test('presets: autism includes all categories; focused presets are subsets', () => {
+  const autism = PRESETS.find((p) => p.key === 'autism');
+  assert.deepStrictEqual([...autism.categories].sort(), [...KEYS].sort());
+  const dairyFree = PRESETS.find((p) => p.key === 'dairy-free');
+  assert.deepStrictEqual(dairyFree.categories, ['dairy']);
+  const feingold = PRESETS.find((p) => p.key === 'feingold');
+  assert.deepStrictEqual([...feingold.categories].sort(), ['artificial-flavors', 'dyes', 'preservatives']);
+});
