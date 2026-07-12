@@ -11,6 +11,7 @@ const ingredients = [
   // --- Artificial Dyes ---
   {
     id: 'red40',
+    categoryKey: 'dyes',
     names: ['red 40', 'red40', 'allura red', 'fd&c red 40', 'fd&c red no. 40', 'red dye 40'],
     category: 'Artificial Dye',
     severity: SEVERITY.HIGH,
@@ -24,6 +25,7 @@ const ingredients = [
   },
   {
     id: 'yellow5',
+    categoryKey: 'dyes',
     names: ['yellow 5', 'yellow5', 'tartrazine', 'fd&c yellow 5', 'fd&c yellow no. 5'],
     category: 'Artificial Dye',
     severity: SEVERITY.HIGH,
@@ -36,6 +38,7 @@ const ingredients = [
   },
   {
     id: 'yellow6',
+    categoryKey: 'dyes',
     names: ['yellow 6', 'yellow6', 'sunset yellow', 'fd&c yellow 6', 'fd&c yellow no. 6'],
     category: 'Artificial Dye',
     severity: SEVERITY.HIGH,
@@ -45,6 +48,7 @@ const ingredients = [
   },
   {
     id: 'blue1',
+    categoryKey: 'dyes',
     names: ['blue 1', 'blue1', 'brilliant blue', 'fd&c blue 1', 'fd&c blue no. 1'],
     category: 'Artificial Dye',
     severity: SEVERITY.MODERATE,
@@ -54,6 +58,7 @@ const ingredients = [
   },
   {
     id: 'blue2',
+    categoryKey: 'dyes',
     names: ['blue 2', 'blue2', 'indigo carmine', 'fd&c blue 2', 'fd&c blue no. 2'],
     category: 'Artificial Dye',
     severity: SEVERITY.MODERATE,
@@ -63,6 +68,7 @@ const ingredients = [
   },
   {
     id: 'red3',
+    categoryKey: 'dyes',
     names: ['red 3', 'red3', 'erythrosine', 'fd&c red 3', 'fd&c red no. 3'],
     category: 'Artificial Dye',
     severity: SEVERITY.HIGH,
@@ -72,6 +78,7 @@ const ingredients = [
   },
   {
     id: 'green3',
+    categoryKey: 'dyes',
     names: ['green 3', 'green3', 'fast green', 'fd&c green 3', 'fd&c green no. 3'],
     category: 'Artificial Dye',
     severity: SEVERITY.MODERATE,
@@ -83,6 +90,7 @@ const ingredients = [
   // --- Preservatives ---
   {
     id: 'bha',
+    categoryKey: 'preservatives',
     names: ['bha', 'butylated hydroxyanisole'],
     category: 'Preservative',
     severity: SEVERITY.HIGH,
@@ -92,6 +100,7 @@ const ingredients = [
   },
   {
     id: 'bht',
+    categoryKey: 'preservatives',
     names: ['bht', 'butylated hydroxytoluene'],
     category: 'Preservative',
     severity: SEVERITY.HIGH,
@@ -101,6 +110,7 @@ const ingredients = [
   },
   {
     id: 'sodiumbenzoate',
+    categoryKey: 'preservatives',
     names: ['sodium benzoate', 'benzoate of soda', 'e211'],
     category: 'Preservative',
     severity: SEVERITY.HIGH,
@@ -113,6 +123,7 @@ const ingredients = [
   },
   {
     id: 'tbhq',
+    categoryKey: 'preservatives',
     names: ['tbhq', 'tertiary butylhydroquinone', 't-butylhydroquinone'],
     category: 'Preservative',
     severity: SEVERITY.HIGH,
@@ -122,6 +133,7 @@ const ingredients = [
   },
   {
     id: 'sodiumnitrate',
+    categoryKey: 'preservatives',
     names: ['sodium nitrate', 'sodium nitrite', 'potassium nitrate', 'potassium nitrite'],
     category: 'Preservative',
     severity: SEVERITY.MODERATE,
@@ -133,6 +145,7 @@ const ingredients = [
   // --- Excitotoxins ---
   {
     id: 'msg',
+    categoryKey: 'excitotoxins',
     names: [
       'msg',
       'monosodium glutamate',
@@ -151,6 +164,7 @@ const ingredients = [
   },
   {
     id: 'aspartame',
+    categoryKey: 'excitotoxins',
     names: ['aspartame', 'nutrasweet', 'equal', 'aminosweet', 'phenylalanine'],
     category: 'Excitotoxin',
     severity: SEVERITY.HIGH,
@@ -160,6 +174,7 @@ const ingredients = [
   },
   {
     id: 'naturalflavors',
+    categoryKey: 'excitotoxins',
     names: ['natural flavors', 'natural flavor', 'natural flavoring'],
     category: 'Excitotoxin',
     severity: SEVERITY.MODERATE,
@@ -171,6 +186,7 @@ const ingredients = [
   // --- Artificial Sweeteners ---
   {
     id: 'sucralose',
+    categoryKey: 'sweeteners',
     names: ['sucralose', 'splenda'],
     category: 'Artificial Sweetener',
     severity: SEVERITY.MODERATE,
@@ -180,6 +196,7 @@ const ingredients = [
   },
   {
     id: 'acesulfamek',
+    categoryKey: 'sweeteners',
     names: ['acesulfame k', 'acesulfame potassium', 'sunett', 'sweet one'],
     category: 'Artificial Sweetener',
     severity: SEVERITY.MODERATE,
@@ -189,6 +206,7 @@ const ingredients = [
   },
   {
     id: 'saccharin',
+    categoryKey: 'sweeteners',
     names: ['saccharin', 'sodium saccharin', 'sweet n low'],
     category: 'Artificial Sweetener',
     severity: SEVERITY.MODERATE,
@@ -200,6 +218,7 @@ const ingredients = [
   // --- High Fructose Corn Syrup ---
   {
     id: 'hfcs',
+    categoryKey: 'hfcs',
     names: [
       'high fructose corn syrup',
       'high-fructose corn syrup',
@@ -218,6 +237,7 @@ const ingredients = [
   // --- Gluten (GFCF diet) ---
   {
     id: 'gluten',
+    categoryKey: 'gluten',
     names: [
       'wheat',
       'wheat flour',
@@ -246,6 +266,7 @@ const ingredients = [
   // --- Casein (GFCF diet) ---
   {
     id: 'casein',
+    categoryKey: 'dairy',
     names: [
       'casein',
       'caseinate',
@@ -271,6 +292,7 @@ const ingredients = [
   // --- Carrageenan ---
   {
     id: 'carrageenan',
+    categoryKey: 'carrageenan',
     names: ['carrageenan', 'carrageenan gum'],
     category: 'Additive',
     severity: SEVERITY.HIGH,
@@ -282,6 +304,7 @@ const ingredients = [
   // --- Soy ---
   {
     id: 'soy',
+    categoryKey: 'soy',
     names: [
       'soy lecithin',
       'soy',
@@ -306,6 +329,7 @@ const ingredients = [
   // --- Artificial Flavors ---
   {
     id: 'artificialflavors',
+    categoryKey: 'artificial-flavors',
     names: ['artificial flavor', 'artificial flavors', 'artificial flavoring'],
     category: 'Artificial Additive',
     severity: SEVERITY.MODERATE,
@@ -317,6 +341,7 @@ const ingredients = [
   // --- Aluminum Additives ---
   {
     id: 'aluminum',
+    categoryKey: 'aluminum',
     names: [
       'sodium aluminum sulfate',
       'sodium aluminosilicate',

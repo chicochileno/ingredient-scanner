@@ -15,3 +15,28 @@ test('categories: keys are unique and non-empty', () => {
 test('categories: CATEGORY_KEYS mirrors CATEGORIES keys', () => {
   assert.deepStrictEqual(CATEGORY_KEYS, CATEGORIES.map((c) => c.key));
 });
+
+const ingredients = require('./inflammatoryIngredients');
+const { CATEGORY_KEYS: KEYS } = require('./categories');
+
+test('every ingredient has a valid categoryKey', () => {
+  for (const ing of ingredients) {
+    assert.ok(ing.categoryKey, `ingredient "${ing.id}" missing categoryKey`);
+    assert.ok(KEYS.includes(ing.categoryKey), `ingredient "${ing.id}" has unknown categoryKey "${ing.categoryKey}"`);
+  }
+});
+
+test('a categoryKey exists for each of the expected mappings', () => {
+  const byId = Object.fromEntries(ingredients.map((i) => [i.id, i.categoryKey]));
+  assert.strictEqual(byId.red40, 'dyes');
+  assert.strictEqual(byId.bht, 'preservatives');
+  assert.strictEqual(byId.msg, 'excitotoxins');
+  assert.strictEqual(byId.sucralose, 'sweeteners');
+  assert.strictEqual(byId.hfcs, 'hfcs');
+  assert.strictEqual(byId.gluten, 'gluten');
+  assert.strictEqual(byId.casein, 'dairy');
+  assert.strictEqual(byId.soy, 'soy');
+  assert.strictEqual(byId.artificialflavors, 'artificial-flavors');
+  assert.strictEqual(byId.carrageenan, 'carrageenan');
+  assert.strictEqual(byId.aluminum, 'aluminum');
+});
