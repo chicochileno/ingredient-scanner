@@ -1,7 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-const { matchIngredients } = require('../utils/ingredientMatcher');
-const { getMatchOptions, addDismissedFlag } = require('../utils/userMatchData');
+const { matchAllProfiles, addDismissedFlag } = require('../utils/userMatchData');
 const requireAuth = require('../middleware/requireAuth');
 const { getBilling, tryConsumeScan } = require('../utils/billing');
 
@@ -75,26 +74,24 @@ router.post('/image', requireAuth, async (req, res) => {
       if (!rawIngredients) {
         const consumed = await tryConsumeScan(req.uid);
         if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
-        return res.json({ productName, imageUrl, upc, rawText: '', flagged: [], ingredientCount: 0 });
+        return res.json({ productName, imageUrl, upc, rawText: '', profiles: [], flagged: [], ingredientCount: 0 });
       }
-      const matchOptions = await getMatchOptions(req.uid);
-      const flagged = matchIngredients(rawIngredients, matchOptions);
+      const profiles = await matchAllProfiles(req.uid, rawIngredients);
       const consumed = await tryConsumeScan(req.uid);
       if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
-      return res.json({ productName, imageUrl, upc, rawText: rawIngredients, flagged, ingredientCount: flagged.length });
+      return res.json({ productName, imageUrl, upc, rawText: rawIngredients, profiles, flagged: profiles[0]?.flagged || [] });
     }
 
     if (!annotations || !annotations.fullTextAnnotation) {
-      return res.json({ rawText: '', flagged: [], ingredientCount: 0 });
+      return res.json({ rawText: '', profiles: [], flagged: [], ingredientCount: 0 });
     }
 
     const rawText = annotations.fullTextAnnotation.text;
     const ingredientsText = extractIngredientsSection(rawText);
-    const matchOptions = await getMatchOptions(req.uid);
-    const flagged = matchIngredients(ingredientsText, matchOptions);
+    const profiles = await matchAllProfiles(req.uid, ingredientsText);
     const consumed = await tryConsumeScan(req.uid);
     if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
-    res.json({ rawText, flagged, ingredientCount: flagged.length });
+    res.json({ rawText, profiles, flagged: profiles[0]?.flagged || [] });
   } catch (err) {
     console.error('Vision API error:', err?.response?.data || err.message);
     res.status(500).json({ error: 'Failed to process image' });
@@ -106,9 +103,8 @@ router.post('/text', requireAuth, async (req, res) => {
   if (!text) return res.status(400).json({ error: 'text required' });
   const allowed = await tryConsumeScan(req.uid);
   if (!allowed) return res.status(403).json({ error: 'scan_limit_reached' });
-  const matchOptions = await getMatchOptions(req.uid);
-  const flagged = matchIngredients(text, matchOptions);
-  res.json({ rawText: text, flagged, ingredientCount: flagged.length });
+  const profiles = await matchAllProfiles(req.uid, text);
+  res.json({ rawText: text, profiles, flagged: profiles[0]?.flagged || [] });
 });
 
 router.get('/barcode/:upc', requireAuth, async (req, res) => {
@@ -132,13 +128,12 @@ router.get('/barcode/:upc', requireAuth, async (req, res) => {
     if (!rawIngredients) {
       const consumed = await tryConsumeScan(req.uid);
       if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
-      return res.json({ productName, imageUrl, rawText: '', flagged: [], ingredientCount: 0 });
+      return res.json({ productName, imageUrl, rawText: '', profiles: [], flagged: [], ingredientCount: 0 });
     }
-    const matchOptions = await getMatchOptions(req.uid);
-    const flagged = matchIngredients(rawIngredients, matchOptions);
+    const profiles = await matchAllProfiles(req.uid, rawIngredients);
     const consumed = await tryConsumeScan(req.uid);
     if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
-    res.json({ productName, imageUrl, rawText: rawIngredients, flagged, ingredientCount: flagged.length });
+    res.json({ productName, imageUrl, rawText: rawIngredients, profiles, flagged: profiles[0]?.flagged || [] });
   } catch (err) {
     console.error('Open Food Facts error:', err.message);
     res.status(500).json({ error: 'Failed to fetch product data' });
