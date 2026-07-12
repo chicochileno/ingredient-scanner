@@ -139,6 +139,7 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
               const isSel = p.profileId === selectedId;
               return (
                 <button key={p.profileId} role="tab" aria-selected={isSel}
+                  id={`tab-${p.profileId}`} aria-controls={`panel-${p.profileId}`}
                   className={`profile-chip ${count > 0 ? 'profile-chip-flagged' : 'profile-chip-safe'} ${isSel ? 'profile-chip-sel' : ''}`}
                   onClick={() => setSelectedId(p.profileId)}>
                   {name} — {count > 0 ? `${count} flagged` : 'safe'}
@@ -148,7 +149,13 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
           </div>
         )}
 
-        <ProfileFlags profileId={selected.profileId} flagged={selected.flagged || []} onDismiss={onDismiss} />
+        {multi ? (
+          <div role="tabpanel" id={`panel-${selected.profileId}`} aria-labelledby={`tab-${selected.profileId}`}>
+            <ProfileFlags key={selected.profileId} profileId={selected.profileId} flagged={selected.flagged || []} onDismiss={onDismiss} />
+          </div>
+        ) : (
+          <ProfileFlags key={selected.profileId} profileId={selected.profileId} flagged={selected.flagged || []} onDismiss={onDismiss} />
+        )}
 
         {rawText && (
           <section className="results-section results-section-raw">
