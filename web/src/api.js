@@ -57,15 +57,12 @@ export async function createCustomerPortalSession() {
   }));
 }
 
-export async function dismissFlag(ingredientId) {
+export async function dismissFlag(profileId, ingredientId) {
   const token = await getToken();
   return handle(await fetch(`${BASE_URL}/scan/dismiss`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify({ ingredientId }),
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ profileId, ingredientId }),
   }));
 }
 

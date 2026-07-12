@@ -9,8 +9,8 @@ import HomeScreen from './HomeScreen';
 import ScanScreen from './ScanScreen';
 import ResultsScreen from './ResultsScreen';
 import HistoryScreen from './HistoryScreen';
-import { useAllergens, AllergenContext } from './useAllergens';
-import AllergensScreen from './AllergensScreen';
+import { useProfiles, ProfileContext } from './useProfiles';
+import ProfilesScreen from './ProfilesScreen';
 import { useBilling, BillingContext } from './useBilling';
 import { UpgradeScreen, UpgradeSuccessScreen } from './UpgradeScreen';
 import { rematch } from './api';
@@ -21,8 +21,8 @@ function RequireAuth({ user, authReady, children }) {
   return children;
 }
 
-function HomeRoute({ user, onScan, onHistory, onAllergens, onUpgrade }) {
-  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onAllergens={onAllergens} onUpgrade={onUpgrade} />;
+function HomeRoute({ user, onScan, onHistory, onProfiles, onUpgrade }) {
+  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onProfiles={onProfiles} onUpgrade={onUpgrade} />;
 }
 
 function ResultsRoute() {
@@ -53,8 +53,8 @@ function HistoryScanRoute({ user }) {
     async function refreshFlags(loaded) {
       if (!loaded?.rawText) return loaded;
       try {
-        const { flagged } = await rematch(loaded.rawText);
-        return { ...loaded, flagged };
+        const { profiles, flagged } = await rematch(loaded.rawText);
+        return { ...loaded, profiles, flagged };
       } catch (e) {
         console.error('Rematch failed, showing stored flags', e);
         return loaded;
@@ -100,7 +100,7 @@ function HistoryScanRoute({ user }) {
 
 function AppRoutes({ user, authReady, setUser, setAuthReady }) {
   const navigate = useNavigate();
-  const allergenAPI = useAllergens(user);
+  const profileAPI = useProfiles(user);
   const billing = useBilling(user);
 
   async function handleResult(data, src, imageBase64) {
@@ -120,7 +120,10 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           productName: data.productName || null,
           rawText: data.rawText || '',
           flagged: data.flagged || [],
-          ingredientCount: data.ingredientCount || 0,
+          summary: {
+            flaggedProfileCount: (data.profiles || []).filter((p) => (p.flagged || []).length > 0).length,
+            totalProfiles: (data.profiles || []).length,
+          },
           imageUrl,
         });
       } catch (e) {
@@ -133,7 +136,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
 
   if (!authReady) {
     return (
-      <AllergenContext.Provider value={allergenAPI}>
+      <ProfileContext.Provider value={profileAPI}>
         <BillingContext.Provider value={billing}>
           <div style={{
             position: 'fixed', inset: 0,
@@ -147,12 +150,12 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
             }} />
           </div>
         </BillingContext.Provider>
-      </AllergenContext.Provider>
+      </ProfileContext.Provider>
     );
   }
 
   return (
-    <AllergenContext.Provider value={allergenAPI}>
+    <ProfileContext.Provider value={profileAPI}>
       <BillingContext.Provider value={billing}>
         <Routes>
         <Route
@@ -171,7 +174,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
                 user={user}
                 onScan={() => navigate('/scan')}
                 onHistory={() => navigate('/history')}
-                onAllergens={() => navigate('/allergens')}
+                onProfiles={() => navigate('/profiles')}
                 onUpgrade={() => navigate('/upgrade')}
               />
             </RequireAuth>
@@ -217,10 +220,10 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           }
         />
         <Route
-          path="/allergens"
+          path="/profiles"
           element={
             <RequireAuth user={user} authReady={authReady}>
-              <AllergensScreen onBack={() => navigate('/home')} />
+              <ProfilesScreen onBack={() => navigate('/home')} />
             </RequireAuth>
           }
         />
@@ -243,7 +246,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
         <Route path="*" element={<Navigate to={user ? '/home' : '/'} replace />} />
         </Routes>
       </BillingContext.Provider>
-    </AllergenContext.Provider>
+    </ProfileContext.Provider>
   );
 }
 
