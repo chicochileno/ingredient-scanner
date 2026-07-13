@@ -77,3 +77,12 @@ export async function rematch(rawText) {
     body: JSON.stringify({ rawText }),
   }));
 }
+
+export async function rematchBatch(items) {
+  const token = await getToken();
+  return handle(await fetch(`${BASE_URL}/scan/rematch-batch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ items }),
+  }));
+}
