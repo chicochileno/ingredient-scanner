@@ -49,6 +49,35 @@ async function matchAllProfiles(uid, rawText) {
   );
 }
 
+// Pure: match many item texts against pre-fetched profile data.
+// profilesData: [{ id, name, activeCategories, personalAllergens, dismissedIds }]
+// items: [{ itemId, rawText }]  ->  [{ itemId, profiles: [{ profileId, name, flagged, counts }] }]
+function matchTextsForProfiles(profilesData, items) {
+  return items.map((item) => ({
+    itemId: item.itemId,
+    profiles: profilesData.map((p) => {
+      const flagged = matchIngredients(item.rawText || '', {
+        activeCategories: p.activeCategories || [],
+        personalAllergens: p.personalAllergens || [],
+        dismissedIds: p.dismissedIds || new Set(),
+      });
+      return { profileId: p.id, name: p.name != null ? p.name : null, flagged, counts: countByTier(flagged) };
+    }),
+  }));
+}
+
+// Fetch profile data once, then match all item texts.
+async function rematchBatch(uid, items) {
+  const profiles = await getProfiles(uid);
+  const profilesData = await Promise.all(
+    profiles.map(async (p) => {
+      const inputs = await getProfileFlagInputs(uid, p.id);
+      return { id: p.id, name: p.name != null ? p.name : null, activeCategories: p.activeCategories || [], ...inputs };
+    })
+  );
+  return matchTextsForProfiles(profilesData, items);
+}
+
 async function addDismissedFlag(uid, profileId, ingredientId) {
   await profileRef(uid, profileId)
     .collection('dismissedFlags')
@@ -56,4 +85,4 @@ async function addDismissedFlag(uid, profileId, ingredientId) {
     .set({ ingredientId, createdAt: admin.firestore.FieldValue.serverTimestamp() });
 }
 
-module.exports = { getProfiles, matchAllProfiles, addDismissedFlag };
+module.exports = { getProfiles, matchAllProfiles, addDismissedFlag, matchTextsForProfiles, rematchBatch };
