@@ -1,6 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-const { matchAllProfiles, addDismissedFlag } = require('../utils/userMatchData');
+const { matchAllProfiles, addDismissedFlag, rematchBatch } = require('../utils/userMatchData');
 const requireAuth = require('../middleware/requireAuth');
 const { getBilling, tryConsumeScan } = require('../utils/billing');
 
@@ -169,6 +169,32 @@ router.post('/rematch', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Rematch error:', err.message);
     res.status(500).json({ error: 'Failed to rematch' });
+  }
+});
+
+// Batch re-match: match many saved-item texts against all profiles in one call.
+// Does NOT consume a scan.
+router.post('/rematch-batch', requireAuth, async (req, res) => {
+  const { items } = req.body;
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: 'items array required' });
+  }
+  if (items.length > 200) {
+    return res.status(400).json({ error: 'too many items' });
+  }
+  const clean = [];
+  for (const it of items) {
+    if (!it || typeof it.itemId !== 'string' || typeof it.rawText !== 'string') {
+      return res.status(400).json({ error: 'each item needs itemId and rawText strings' });
+    }
+    clean.push({ itemId: it.itemId, rawText: it.rawText.slice(0, 20000) });
+  }
+  try {
+    const results = await rematchBatch(req.uid, clean);
+    res.json({ results });
+  } catch (err) {
+    console.error('Rematch-batch error:', err.message);
+    res.status(500).json({ error: 'Failed to rematch batch' });
   }
 });
 
