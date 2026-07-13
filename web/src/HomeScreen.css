@@ -416,3 +416,41 @@
   border-radius: var(--radius-full);
   transition: width 0.4s ease;
 }
+
+/* System 3 home layout: large Scan card + 3-across mini row */
+.home-card-primary {
+  padding: 28px 20px;
+}
+.home-card-primary .home-card-icon {
+  transform: scale(1.25);
+  margin-bottom: 6px;
+}
+.home-card-primary .home-card-label {
+  font-size: 22px;
+}
+.home-card-row {
+  display: flex;
+  gap: 10px;
+}
+.home-card-mini {
+  flex: 1 1 0;
+  position: relative;
+  padding: 16px 8px;
+  align-items: center;
+  text-align: center;
+}
+.home-card-mini .home-card-label {
+  font-size: 14px;
+}
+.home-mini-badge {
+  position: absolute;
+  top: 6px; right: 8px;
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--sage, #3a7);
+  color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.home-card-mini:focus-visible, .home-card-primary:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }

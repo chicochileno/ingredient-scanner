@@ -4,6 +4,7 @@ import { auth } from './firebase';
 import { useProfileContext } from './useProfiles';
 import { useBillingContext } from './useBilling';
 import { createCustomerPortalSession } from './api';
+import { useListContext } from './useLists';
 import './HomeScreen.css';
 
 function CameraIcon() {
@@ -28,6 +29,15 @@ function ShieldIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  );
+}
+
+function ListsIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
     </svg>
   );
 }
@@ -78,10 +88,11 @@ function AboutSheet({ onClose }) {
   );
 }
 
-export default function HomeScreen({ user, onScan, onHistory, onProfiles, onUpgrade }) {
+export default function HomeScreen({ user, onScan, onHistory, onProfiles, onLists, onUpgrade }) {
   const firstName = user.displayName?.split(' ')[0] || 'there';
   const [showAbout, setShowAbout] = useState(false);
   const { profiles } = useProfileContext();
+  const { lists } = useListContext();
   const { scanCount, subscriptionStatus, loading: billingLoading } = useBillingContext();
   const isSubscribed = subscriptionStatus === 'active';
   const atLimit = !isSubscribed && scanCount >= 10;
@@ -118,30 +129,30 @@ export default function HomeScreen({ user, onScan, onHistory, onProfiles, onUpgr
         </div>
 
         <div className="home-cards">
-          <button className="home-card home-card-scan" onClick={atLimit ? onUpgrade : onScan}>
+          <button className="home-card home-card-scan home-card-primary" onClick={atLimit ? onUpgrade : onScan}>
             <span className="home-card-icon"><CameraIcon /></span>
             <span className="home-card-label">Scan</span>
             <span className="home-card-desc">Label or barcode</span>
           </button>
 
-          <button className="home-card home-card-history" onClick={onHistory}>
-            <span className="home-card-icon"><HistoryIcon /></span>
-            <span className="home-card-label">History</span>
-            <span className="home-card-desc">View past scans</span>
-          </button>
+          <div className="home-card-row">
+            <button className="home-card home-card-mini" onClick={onHistory}>
+              <span className="home-card-icon"><HistoryIcon /></span>
+              <span className="home-card-label">History</span>
+            </button>
 
-          <button className="home-card home-card-allergens" onClick={onProfiles}>
-            <span className="home-card-icon"><ShieldIcon /></span>
-            <span className="home-card-label">Profiles</span>
-            <span className="home-card-desc">
-              {profiles.length <= 1
-                ? "Customize what's flagged"
-                : profiles.map((p) => p.name || 'Unnamed').join(', ')}
-            </span>
-            {profiles.length > 1 && (
-              <span className="home-allergen-badge">{profiles.length}</span>
-            )}
-          </button>
+            <button className="home-card home-card-mini" onClick={onProfiles}>
+              <span className="home-card-icon"><ShieldIcon /></span>
+              <span className="home-card-label">Profiles</span>
+              {profiles.length > 1 && <span className="home-mini-badge">{profiles.length}</span>}
+            </button>
+
+            <button className="home-card home-card-mini" onClick={onLists}>
+              <span className="home-card-icon"><ListsIcon /></span>
+              <span className="home-card-label">Lists</span>
+              {lists.length > 0 && <span className="home-mini-badge">{lists.length}</span>}
+            </button>
+          </div>
         </div>
 
         {!isSubscribed && !billingLoading && (
