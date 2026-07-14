@@ -17,6 +17,9 @@ service cloud.firestore {
     match /users/{userId}/profiles/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    match /users/{userId}/lists/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
     // Billing stays read-only for clients (writes happen server-side via Admin/Stripe),
     // so a client cannot fake subscriptionStatus.
     match /users/{userId}/billing/{document} {
