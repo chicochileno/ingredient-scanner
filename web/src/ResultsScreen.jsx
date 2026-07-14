@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import './ResultsScreen.css';
+import './AllergensScreen.css';
+import './ListsScreen.css';
 import { dismissFlag } from './api';
+import SaveToListSheet from './SaveToListSheet';
 
 function SeverityBadge({ tier, severity }) {
   if (tier === 'possible') {
@@ -111,6 +114,7 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
   const [selectedId, setSelectedId] = useState(profiles[0].profileId);
   const selected = profiles.find((p) => p.profileId === selectedId) || profiles[0];
   const multi = profiles.length > 1;
+  const [showSave, setShowSave] = useState(false);
 
   async function onDismiss(profileId, ingredientId) {
     await dismissFlag(profileId, ingredientId);
@@ -166,8 +170,15 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
         <p className="disclaimer">For informational purposes only. Not a substitute for medical or nutritional advice. Always consult a qualified professional.</p>
       </div>
       <div className="results-footer">
+        <button className="save-list-btn" onClick={() => setShowSave(true)}>Save to list</button>
         <button className="scan-again-btn" onClick={onScanAgain}>{onBack ? 'New Scan' : 'Scan Again'}</button>
       </div>
+      {showSave && (
+        <SaveToListSheet
+          product={{ name: productName || 'Scanned product', rawText, imageUrl: imageUrl || null, upc: result.upc || null }}
+          onClose={() => setShowSave(false)}
+        />
+      )}
     </div>
   );
 }
