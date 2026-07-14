@@ -453,4 +453,4 @@
   font-size: 11px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
-.home-card-mini:focus-visible, .home-card-primary:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.home-card-mini:focus-visible, .home-card-primary:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
