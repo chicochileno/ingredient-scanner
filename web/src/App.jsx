@@ -14,6 +14,8 @@ import ProfilesScreen from './ProfilesScreen';
 import { useBilling, BillingContext } from './useBilling';
 import { UpgradeScreen, UpgradeSuccessScreen } from './UpgradeScreen';
 import { rematch } from './api';
+import { useLists, ListContext } from './useLists';
+import ListsScreen, { ListDetailScreen } from './ListsScreen';
 
 function RequireAuth({ user, authReady, children }) {
   if (!authReady) return null;
@@ -21,8 +23,8 @@ function RequireAuth({ user, authReady, children }) {
   return children;
 }
 
-function HomeRoute({ user, onScan, onHistory, onProfiles, onUpgrade }) {
-  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onProfiles={onProfiles} onUpgrade={onUpgrade} />;
+function HomeRoute({ user, onScan, onHistory, onProfiles, onLists, onUpgrade }) {
+  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onProfiles={onProfiles} onLists={onLists} onUpgrade={onUpgrade} />;
 }
 
 function ResultsRoute() {
@@ -101,6 +103,7 @@ function HistoryScanRoute({ user }) {
 function AppRoutes({ user, authReady, setUser, setAuthReady }) {
   const navigate = useNavigate();
   const profileAPI = useProfiles(user);
+  const listAPI = useLists(user);
   const billing = useBilling(user);
 
   async function handleResult(data, src, imageBase64) {
@@ -136,6 +139,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
 
   if (!authReady) {
     return (
+      <ListContext.Provider value={listAPI}>
       <ProfileContext.Provider value={profileAPI}>
         <BillingContext.Provider value={billing}>
           <div style={{
@@ -151,10 +155,12 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           </div>
         </BillingContext.Provider>
       </ProfileContext.Provider>
+      </ListContext.Provider>
     );
   }
 
   return (
+    <ListContext.Provider value={listAPI}>
     <ProfileContext.Provider value={profileAPI}>
       <BillingContext.Provider value={billing}>
         <Routes>
@@ -175,6 +181,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
                 onScan={() => navigate('/scan')}
                 onHistory={() => navigate('/history')}
                 onProfiles={() => navigate('/profiles')}
+                onLists={() => navigate('/lists')}
                 onUpgrade={() => navigate('/upgrade')}
               />
             </RequireAuth>
@@ -228,6 +235,22 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           }
         />
         <Route
+          path="/lists"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <ListsScreen onBack={() => navigate('/home')} onOpen={(id) => navigate(`/lists/${id}`)} />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/lists/:listId"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <ListDetailScreen user={user} onBack={() => navigate('/lists')} />
+            </RequireAuth>
+          }
+        />
+        <Route
           path="/upgrade"
           element={
             <RequireAuth user={user} authReady={authReady}>
@@ -247,6 +270,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
         </Routes>
       </BillingContext.Provider>
     </ProfileContext.Provider>
+    </ListContext.Provider>
   );
 }
 
