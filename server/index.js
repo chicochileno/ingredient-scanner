@@ -7,6 +7,9 @@ const { router: stripeRouter, webhookHandler } = require('./routes/stripe');
 const shareRoutes = require('./routes/share');
 
 const app = express();
+// Behind Railway's reverse proxy: trust the first proxy hop so req.ip is the real
+// client IP (needed for the per-IP rate limiter on the public /share endpoint).
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 const allowedOrigins = [
