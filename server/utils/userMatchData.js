@@ -78,6 +78,21 @@ async function rematchBatch(uid, items) {
   return matchTextsForProfiles(profilesData, items);
 }
 
+// Full profile data needed to render/share: name, activeCategories, allergens, dismissed.
+// Returns null if the profile doesn't exist.
+async function getProfileWithInputs(uid, profileId) {
+  const snap = await profileRef(uid, profileId).get();
+  if (!snap.exists) return null;
+  const data = snap.data() || {};
+  const inputs = await getProfileFlagInputs(uid, profileId);
+  return {
+    name: data.name != null ? data.name : null,
+    activeCategories: data.activeCategories || [],
+    personalAllergens: inputs.personalAllergens,
+    dismissedIds: inputs.dismissedIds,
+  };
+}
+
 async function addDismissedFlag(uid, profileId, ingredientId) {
   await profileRef(uid, profileId)
     .collection('dismissedFlags')
@@ -85,4 +100,4 @@ async function addDismissedFlag(uid, profileId, ingredientId) {
     .set({ ingredientId, createdAt: admin.firestore.FieldValue.serverTimestamp() });
 }
 
-module.exports = { getProfiles, matchAllProfiles, addDismissedFlag, matchTextsForProfiles, rematchBatch };
+module.exports = { getProfiles, matchAllProfiles, addDismissedFlag, matchTextsForProfiles, rematchBatch, getProfileWithInputs };
