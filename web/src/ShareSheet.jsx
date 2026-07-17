@@ -45,7 +45,7 @@ export default function ShareSheet({ type, refId, existingShareId, profiles = []
 
   return (
     <div className="allergen-sheet-backdrop" onClick={onClose}>
-      <div className="allergen-sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Share">
+      <div className="allergen-sheet" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} role="dialog" aria-modal="true" aria-label="Share">
         <div className="allergen-sheet-handle" />
         <h2 className="allergen-sheet-title">Share {type === 'profile' ? 'profile' : 'list'}</h2>
 
@@ -53,14 +53,14 @@ export default function ShareSheet({ type, refId, existingShareId, profiles = []
           <>
             <label htmlFor="share-profile" className="pe-label">Safe for which child?</label>
             <select id="share-profile" className="allergen-input" value={profileId || ''}
-              onChange={(e) => setProfileId(e.target.value)}>
+              onChange={(e) => setProfileId(e.target.value)} autoFocus>
               {profiles.map((p) => <option key={p.id} value={p.id}>{p.name || 'Unnamed'}</option>)}
             </select>
           </>
         )}
 
         {!shareId ? (
-          <button className="allergen-save-btn" onClick={create} disabled={busy}>
+          <button className="allergen-save-btn" onClick={create} disabled={busy} autoFocus>
             {busy ? 'Creating…' : 'Create link'}
           </button>
         ) : (
@@ -69,7 +69,7 @@ export default function ShareSheet({ type, refId, existingShareId, profiles = []
             <input className="allergen-input" value={url} readOnly aria-label="Share link"
               onFocus={(e) => e.target.select()} />
             <div className="share-actions">
-              <button className="allergen-save-btn" onClick={nativeShare}>Share</button>
+              <button className="allergen-save-btn" onClick={nativeShare} autoFocus>Share</button>
               <button className="share-copy" onClick={copy}>{copied ? 'Copied ✓' : 'Copy'}</button>
             </div>
             <a className="share-preview" href={url} target="_blank" rel="noopener noreferrer">Preview</a>
