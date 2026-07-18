@@ -16,6 +16,7 @@ import { UpgradeScreen, UpgradeSuccessScreen } from './UpgradeScreen';
 import { rematch } from './api';
 import { useLists, ListContext } from './useLists';
 import ListsScreen, { ListDetailScreen } from './ListsScreen';
+import SharePage from './SharePage';
 
 function RequireAuth({ user, authReady, children }) {
   if (!authReady) return null;
@@ -164,6 +165,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
     <ProfileContext.Provider value={profileAPI}>
       <BillingContext.Provider value={billing}>
         <Routes>
+        <Route path="/s/:shareId" element={<SharePage />} />
         <Route
           path="/"
           element={

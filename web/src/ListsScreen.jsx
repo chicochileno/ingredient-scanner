@@ -7,6 +7,8 @@ import './ListsScreen.css';
 import './ProfilesScreen.css';
 import './AllergensScreen.css';
 import { useListContext } from './useLists';
+import { useProfileContext } from './useProfiles';
+import ShareSheet from './ShareSheet';
 
 export default function ListsScreen({ onBack, onOpen }) {
   const { lists, addList } = useListContext();
@@ -68,11 +70,13 @@ function statusText(profiles) {
 export function ListDetailScreen({ user, onBack }) {
   const { listId } = useParams();
   const { lists, renameList, deleteList, addManualItem, removeItem, toggleChecked } = useListContext();
+  const { profiles } = useProfileContext();
   const list = lists.find((l) => l.id === listId);
   const [items, setItems] = useState([]);
   const [statusById, setStatusById] = useState({}); // itemId -> profiles[]
   const [filter, setFilter] = useState('all'); // all | safe | flags
   const [manualName, setManualName] = useState('');
+  const [showShare, setShowShare] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -164,7 +168,11 @@ export function ListDetailScreen({ user, onBack }) {
         </div>
 
         <button className="ld-delete" onClick={() => { deleteList(listId); onBack(); }}>Delete this list</button>
+        <button className="pe-add-allergen" style={{ marginTop: 12 }} onClick={() => setShowShare(true)}>Share list…</button>
       </div>
+      {showShare && (
+        <ShareSheet type="list" refId={listId} existingShareId={list.shareId || null} profiles={profiles} onClose={() => setShowShare(false)} />
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { useProfileContext } from './useProfiles';
 import { CATEGORIES, PRESETS } from './profileCatalog';
+import ShareSheet from './ShareSheet';
 
 function AllergenAddSheet({ onSave, onClose }) {
   const [name, setName] = useState('');
@@ -43,6 +44,7 @@ export default function ProfileEditor({ profile, onClose }) {
   const active = new Set(profile.activeCategories || []);
   const [allergens, setAllergens] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   useEffect(() => {
     const uid = auth.currentUser?.uid;
@@ -102,6 +104,7 @@ export default function ProfileEditor({ profile, onClose }) {
           </div>
         ))}
         <button className="pe-add-allergen" onClick={() => setShowAdd(true)}>+ Add allergen</button>
+        <button className="pe-add-allergen" onClick={() => setShowShare(true)}>Share profile…</button>
 
         {profiles.length > 1 && (
           <button className="pe-delete" onClick={() => { deleteProfile(profile.id); onClose(); }}>
@@ -112,6 +115,9 @@ export default function ProfileEditor({ profile, onClose }) {
       {showAdd && (
         <AllergenAddSheet onClose={() => setShowAdd(false)}
           onSave={async (item) => { await addAllergen(profile.id, item); setShowAdd(false); }} />
+      )}
+      {showShare && (
+        <ShareSheet type="profile" refId={profile.id} existingShareId={profile.shareId || null} onClose={() => setShowShare(false)} />
       )}
     </div>
   );
