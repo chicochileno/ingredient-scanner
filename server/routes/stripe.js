@@ -105,8 +105,12 @@ async function webhookHandler(req, res) {
         }
         break;
       }
-      case 'customer.subscription.deleted':
-      case 'invoice.payment_failed': {
+      // Only hard-cancel when the subscription actually ends. A single
+      // invoice.payment_failed does NOT revoke access — Stripe retries (dunning),
+      // and if all retries fail Stripe emits customer.subscription.deleted, which
+      // we handle here. This avoids cutting off a paying customer on a transient
+      // decline.
+      case 'customer.subscription.deleted': {
         const customerId = event.data.object.customer;
         // Look up the Firebase UID from the Stripe customer's metadata
         // (set when the customer was created). Avoids needing a Firestore

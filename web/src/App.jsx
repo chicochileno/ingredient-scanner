@@ -281,11 +281,14 @@ export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const firebaseToken = params.get('firebaseToken');
+    // The custom token arrives in the URL fragment (#firebaseToken=...) — fragments
+    // are never sent to servers/proxies/logs or the Referer header.
+    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+    const firebaseToken = new URLSearchParams(hash).get('firebaseToken');
 
     if (firebaseToken) {
-      window.history.replaceState({}, '', window.location.pathname);
+      // Strip the token from the URL (keep path + query) so it isn't left in the bar.
+      window.history.replaceState({}, '', window.location.pathname + window.location.search);
       signInWithCustomToken(auth, firebaseToken).catch((e) => {
         console.error('Custom token sign-in failed:', e);
       });

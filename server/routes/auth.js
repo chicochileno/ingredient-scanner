@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const express = require('express');
 const { OAuth2Client } = require('google-auth-library');
 const admin = require('../utils/firebaseAdmin');
@@ -6,6 +7,7 @@ const router = express.Router();
 
 const CALLBACK_URL = process.env.CALLBACK_URL || 'https://precious-acceptance-production.up.railway.app/auth/google/callback';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://scanner.joelrog.com';
+const STATE_COOKIE = 'oauth_state';
 
 function getOAuthClient() {
   return new OAuth2Client(
@@ -15,23 +17,62 @@ function getOAuthClient() {
   );
 }
 
-// GET /auth/google — redirect to Google sign-in
+// Read a single cookie value without adding a cookie-parser dependency.
+function readCookie(req, name) {
+  const header = req.headers.cookie;
+  if (!header) return null;
+  for (const part of header.split(';')) {
+    const idx = part.indexOf('=');
+    if (idx === -1) continue;
+    const k = part.slice(0, idx).trim();
+    if (k === name) return decodeURIComponent(part.slice(idx + 1).trim());
+  }
+  return null;
+}
+
+// Constant-time string compare (guards against length/timing leaks).
+function safeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ba.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ba, bb);
+}
+
+// GET /auth/google — redirect to Google sign-in.
+// Sets an unguessable `state` in an httpOnly, SameSite=Lax cookie AND passes it to
+// Google; the callback requires them to match — this prevents login CSRF.
 router.get('/google', (req, res) => {
+  const state = crypto.randomBytes(24).toString('base64url');
+  res.cookie(STATE_COOKIE, state, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax', // survives the top-level redirect back from Google
+    maxAge: 10 * 60 * 1000, // 10 minutes
+    path: '/auth',
+  });
   const client = getOAuthClient();
   const url = client.generateAuthUrl({
-    access_type: 'offline',
     scope: ['openid', 'email', 'profile'],
     prompt: 'select_account',
+    state,
   });
   res.redirect(url);
 });
 
-// GET /auth/google/callback — exchange code, create Firebase custom token, redirect to app
+// GET /auth/google/callback — verify state, exchange code, mint a Firebase custom token,
+// redirect to the app with the token in the URL FRAGMENT (never sent to servers/logs/Referer).
 router.get('/google/callback', async (req, res) => {
-  const { code, error } = req.query;
+  const { code, error, state } = req.query;
+  const cookieState = readCookie(req, STATE_COOKIE);
+  res.clearCookie(STATE_COOKIE, { path: '/auth' });
 
   if (error || !code) {
     return res.redirect(`${FRONTEND_URL}/?authError=cancelled`);
+  }
+  // CSRF check: the returned state must match the one we set in the cookie.
+  if (!state || !cookieState || !safeEqual(String(state), cookieState)) {
+    return res.redirect(`${FRONTEND_URL}/?authError=invalid_state`);
   }
 
   try {
@@ -72,10 +113,12 @@ router.get('/google/callback', async (req, res) => {
     }
 
     const customToken = await admin.auth().createCustomToken(uid);
-    res.redirect(`${FRONTEND_URL}/?firebaseToken=${customToken}`);
+    // Token in the fragment (#), not the query — fragments are never sent to the
+    // server, proxy/CDN logs, or the Referer header.
+    res.redirect(`${FRONTEND_URL}/#firebaseToken=${encodeURIComponent(customToken)}`);
   } catch (e) {
     console.error('Auth callback error:', e.message);
-    res.redirect(`${FRONTEND_URL}/?authError=${encodeURIComponent(e.message)}`);
+    res.redirect(`${FRONTEND_URL}/?authError=signin_failed`);
   }
 });
 

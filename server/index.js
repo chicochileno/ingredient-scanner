@@ -4,6 +4,7 @@ const cors = require('cors');
 const scanRoutes = require('./routes/scan');
 const authRoutes = require('./routes/auth');
 const { router: stripeRouter, webhookHandler } = require('./routes/stripe');
+const { createRateLimiter } = require('./middleware/rateLimit');
 const shareRoutes = require('./routes/share');
 
 const app = express();
@@ -29,9 +30,14 @@ app.post('/stripe/webhook', express.raw({ type: 'application/json' }), webhookHa
 
 app.use(express.json({ limit: '10mb' }));
 
+// Per-IP rate limits on the auth + Stripe endpoints (the Stripe webhook is mounted
+// separately above, before express.json(), so it is NOT rate-limited).
+const authLimiter = createRateLimiter({ max: 30, windowMs: 60000 });
+const stripeLimiter = createRateLimiter({ max: 20, windowMs: 60000 });
+
 app.use('/scan', scanRoutes);
-app.use('/auth', authRoutes);
-app.use('/stripe', stripeRouter);
+app.use('/auth', authLimiter, authRoutes);
+app.use('/stripe', stripeLimiter, stripeRouter);
 app.use('/share', shareRoutes);
 
 app.get('/health', (req, res) => res.json({ status: 'ok', version: '3.0', routes: ['scan', 'auth', 'stripe', 'share'] }));
