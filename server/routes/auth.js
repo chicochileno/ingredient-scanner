@@ -46,7 +46,7 @@ router.get('/google', (req, res) => {
   const state = crypto.randomBytes(24).toString('base64url');
   res.cookie(STATE_COOKIE, state, {
     httpOnly: true,
-    secure: true,
+    secure: req.secure, // true in prod (HTTPS via trust proxy); false on http://localhost dev
     sameSite: 'lax', // survives the top-level redirect back from Google
     maxAge: 10 * 60 * 1000, // 10 minutes
     path: '/auth',
