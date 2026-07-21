@@ -1,10 +1,17 @@
 const express = require('express');
 const axios = require('axios');
-const { matchAllProfiles, addDismissedFlag, rematchBatch } = require('../utils/userMatchData');
+const { matchAllProfiles, addDismissedFlag, rematchBatch, getProfilesWithAllergens } = require('../utils/userMatchData');
 const requireAuth = require('../middleware/requireAuth');
 const { getBilling, tryConsumeScan } = require('../utils/billing');
+const { CATEGORIES } = require('../data/categories');
+const { analyzeMenu } = require('../utils/menuAnalyzer');
+const { allergenUnion, parseMenuReport, mapMenuToProfiles } = require('../utils/menuMatch');
 
 const router = express.Router();
+
+const MENU_TEXT_CAP = 6000;
+const CATEGORY_KEYS_SET = CATEGORIES.map((c) => c.key);
+const CATEGORY_LABEL_BY_KEY = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 
 function extractIngredientsSection(text) {
   const match = text.match(/ingredients?\s*:?\s*/i);
@@ -105,6 +112,66 @@ router.post('/text', requireAuth, async (req, res) => {
   if (!allowed) return res.status(403).json({ error: 'scan_limit_reached' });
   const profiles = await matchAllProfiles(req.uid, text);
   res.json({ rawText: text, profiles, flagged: profiles[0]?.flagged || [] });
+});
+
+// Scan a restaurant menu (photo -> Vision OCR, or pasted text) and map likely
+// concerns to every profile via Claude. Consumes a scan on success.
+router.post('/menu', requireAuth, async (req, res) => {
+  const { imageBase64, text } = req.body;
+  if (!imageBase64 && typeof text !== 'string') {
+    return res.status(400).json({ error: 'imageBase64 or text required' });
+  }
+
+  const allowed = await checkScanLimit(req.uid);
+  if (!allowed) return res.status(403).json({ error: 'scan_limit_reached' });
+
+  try {
+    // 1. Resolve menu text (OCR the photo, or use pasted text).
+    let menuText = typeof text === 'string' ? text : '';
+    if (imageBase64) {
+      const apiKey = process.env.GOOGLE_VISION_API_KEY;
+      if (!apiKey) return res.status(500).json({ error: 'Vision API key not configured' });
+      const visionRes = await axios.post(
+        `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+        { requests: [{ image: { content: imageBase64 }, features: [{ type: 'TEXT_DETECTION', maxResults: 1 }] }] }
+      );
+      menuText = visionRes.data.responses[0]?.fullTextAnnotation?.text || '';
+    }
+
+    menuText = menuText.trim();
+    if (!menuText) return res.status(422).json({ error: 'No menu text found. Try a clearer photo or paste the menu text.' });
+    if (menuText.length > MENU_TEXT_CAP) menuText = menuText.slice(0, MENU_TEXT_CAP);
+
+    // 2. Build the concern set: all canonical categories + union of allergen names.
+    const profiles = await getProfilesWithAllergens(req.uid);
+    const allergenNames = allergenUnion(profiles);
+
+    // 3. Ask Claude, then sanitize its output.
+    const rawDishes = await analyzeMenu(menuText, { categories: CATEGORIES, allergenNames });
+    const dishes = parseMenuReport({ dishes: rawDishes }, CATEGORY_KEYS_SET);
+
+    // 4. Map to profiles.
+    const mapped = mapMenuToProfiles(
+      dishes,
+      profiles.map((p) => ({ profileId: p.id, name: p.name, activeCategories: p.activeCategories, allergenNames: p.allergenNames })),
+      CATEGORY_LABEL_BY_KEY
+    );
+
+    // 5. Consume a scan only after a successful analysis.
+    const consumed = await tryConsumeScan(req.uid);
+    if (!consumed) return res.status(403).json({ error: 'scan_limit_reached' });
+
+    return res.json({
+      type: 'menu',
+      menuText,
+      dishes: mapped.dishes,
+      profiles: mapped.profiles,
+      noDishes: dishes.length === 0,
+    });
+  } catch (err) {
+    console.error('Menu scan error:', err?.response?.data || err.message);
+    return res.status(502).json({ error: 'Failed to analyze menu. Please try again.' });
+  }
 });
 
 router.get('/barcode/:upc', requireAuth, async (req, res) => {
