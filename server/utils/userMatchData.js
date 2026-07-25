@@ -93,6 +93,23 @@ async function getProfileWithInputs(uid, profileId) {
   };
 }
 
+// Profiles with activeCategories + custom allergen NAMES, for menu mapping.
+// Returns [{ id, name, activeCategories, allergenNames }].
+async function getProfilesWithAllergens(uid) {
+  const profiles = await getProfiles(uid);
+  return Promise.all(
+    profiles.map(async (p) => {
+      const inputs = await getProfileFlagInputs(uid, p.id);
+      return {
+        id: p.id,
+        name: p.name != null ? p.name : null,
+        activeCategories: p.activeCategories || [],
+        allergenNames: inputs.personalAllergens.map((a) => a.name).filter(Boolean),
+      };
+    })
+  );
+}
+
 async function addDismissedFlag(uid, profileId, ingredientId) {
   await profileRef(uid, profileId)
     .collection('dismissedFlags')
@@ -100,4 +117,4 @@ async function addDismissedFlag(uid, profileId, ingredientId) {
     .set({ ingredientId, createdAt: admin.firestore.FieldValue.serverTimestamp() });
 }
 
-module.exports = { getProfiles, matchAllProfiles, addDismissedFlag, matchTextsForProfiles, rematchBatch, getProfileWithInputs };
+module.exports = { getProfiles, matchAllProfiles, addDismissedFlag, matchTextsForProfiles, rematchBatch, getProfileWithInputs, getProfilesWithAllergens };

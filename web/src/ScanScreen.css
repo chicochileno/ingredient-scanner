@@ -253,3 +253,52 @@
   cursor: pointer;
   white-space: nowrap;
 }
+
+.menu-paste-link {
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: #fff;
+  text-decoration: underline;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.paste-sheet {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.paste-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg, #fff);
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.paste-title { margin: 0 0 12px; font-size: 1.1rem; }
+.paste-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 12px;
+  padding: 12px;
+  font: inherit;
+  resize: vertical;
+}
+.paste-actions { display: flex; gap: 12px; margin-top: 16px; }
+.paste-cancel, .paste-submit {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.paste-cancel { background: transparent; border: 1px solid var(--border, #ccc); }
+.paste-submit { background: var(--sage, #4a7c59); color: #fff; border: none; }
+.paste-submit:disabled, .paste-cancel:disabled { opacity: 0.5; cursor: default; }

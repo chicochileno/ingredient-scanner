@@ -16,6 +16,12 @@ test('categories: CATEGORY_KEYS mirrors CATEGORIES keys', () => {
   assert.deepStrictEqual(CATEGORY_KEYS, CATEGORIES.map((c) => c.key));
 });
 
+test('every category has a non-empty description', () => {
+  for (const c of CATEGORIES) {
+    assert.ok(typeof c.description === 'string' && c.description.length > 0, `missing description for ${c.key}`);
+  }
+});
+
 const ingredients = require('./inflammatoryIngredients');
 const { CATEGORY_KEYS: KEYS } = require('./categories');
 

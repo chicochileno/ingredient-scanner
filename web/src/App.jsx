@@ -8,6 +8,7 @@ import LoginScreen from './LoginScreen';
 import HomeScreen from './HomeScreen';
 import ScanScreen from './ScanScreen';
 import ResultsScreen from './ResultsScreen';
+import MenuResultsScreen from './MenuResultsScreen';
 import HistoryScreen from './HistoryScreen';
 import { useProfiles, ProfileContext } from './useProfiles';
 import ProfilesScreen from './ProfilesScreen';
@@ -43,6 +44,19 @@ function ResultsRoute() {
   );
 }
 
+function MenuResultsRoute() {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  if (!state?.result) return <Navigate to="/home" replace />;
+  return (
+    <MenuResultsScreen
+      result={state.result}
+      onScanAgain={() => navigate('/scan')}
+      onBack={() => navigate('/home')}
+    />
+  );
+}
+
 function HistoryScanRoute({ user }) {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -54,6 +68,7 @@ function HistoryScanRoute({ user }) {
     let cancelled = false;
 
     async function refreshFlags(loaded) {
+      if (loaded?.mode === 'menu') return loaded;          // menu: render snapshot, never rematch
       if (!loaded?.rawText) return loaded;
       try {
         const { profiles, flagged } = await rematch(loaded.rawText);
@@ -90,6 +105,17 @@ function HistoryScanRoute({ user }) {
   if (loading) return null;
   if (!scan) return null;
 
+  if (scan.mode === 'menu') {
+    const snap = scan.menuSnapshot || { dishes: [], profiles: [] };
+    return (
+      <MenuResultsScreen
+        result={{ type: 'menu', menuText: scan.menuText, dishes: snap.dishes, profiles: snap.profiles, noDishes: snap.noDishes }}
+        onBack={() => navigate('/history')}
+        onScanAgain={() => navigate('/scan')}
+      />
+    );
+  }
+
   return (
     <ResultsScreen
       result={scan}
@@ -109,6 +135,32 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
 
   async function handleResult(data, src, imageBase64) {
     let imageUrl = null;
+
+    if (src === 'menu') {
+      if (user) {
+        try {
+          const scanRef = doc(collection(db, 'users', user.uid, 'scans'));
+          await setDoc(scanRef, {
+            createdAt: serverTimestamp(),
+            mode: 'menu',
+            productName: null,
+            menuText: data.menuText || '',
+            menuSnapshot: { dishes: data.dishes || [], profiles: data.profiles || [], noDishes: !!data.noDishes },
+            rawText: '',
+            flagged: [],
+            summary: {
+              flaggedProfileCount: (data.profiles || []).filter((p) => (p.flaggedCount || 0) > 0).length,
+              totalProfiles: (data.profiles || []).length,
+            },
+            imageUrl: null,
+          });
+        } catch (e) {
+          console.error('Failed to save menu scan', e);
+        }
+      }
+      navigate('/menu-results', { state: { result: data } });
+      return;
+    }
 
     if (user) {
       try {
@@ -205,6 +257,14 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           element={
             <RequireAuth user={user} authReady={authReady}>
               <ResultsRoute />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/menu-results"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <MenuResultsRoute />
             </RequireAuth>
           }
         />

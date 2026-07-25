@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BrowserMultiFormatReader } from '@zxing/browser';
-import { scanImage, scanBarcode } from './api';
+import { scanImage, scanBarcode, scanMenu } from './api';
 import './ScanScreen.css';
 
 export default function ScanScreen({ onResult, onBack }) {
@@ -12,6 +12,8 @@ export default function ScanScreen({ onResult, onBack }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const [showPaste, setShowPaste] = useState(false);
+  const [pasteText, setPasteText] = useState('');
   const navigate = useNavigate();
 
   const stopCamera = useCallback(() => {
@@ -101,6 +103,41 @@ export default function ScanScreen({ onResult, onBack }) {
     }
   }
 
+  async function handleMenuCapture() {
+    if (!cameraReady || loading) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+    setLoading(true);
+    try {
+      const result = await scanMenu({ imageBase64: base64 });
+      onResult(result, 'menu', null);
+    } catch (e) {
+      if (e.message === 'scan_limit_reached') { navigate('/upgrade'); return; }
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handlePasteSubmit() {
+    if (loading || !pasteText.trim()) return;
+    setLoading(true);
+    try {
+      const result = await scanMenu({ text: pasteText.trim() });
+      setShowPaste(false);
+      onResult(result, 'menu', null);
+    } catch (e) {
+      if (e.message === 'scan_limit_reached') { navigate('/upgrade'); return; }
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="scan-root">
       <video ref={videoRef} className="scan-video" autoPlay playsInline muted />
@@ -117,11 +154,13 @@ export default function ScanScreen({ onResult, onBack }) {
           )}
           <h1 className="scan-title">Ingredient Scanner</h1>
           <p className="scan-sub">
-            {mode === 'label' ? 'Point at an ingredient list' : 'Hold barcode steady in frame'}
+            {mode === 'label' ? 'Point at an ingredient list'
+              : mode === 'barcode' ? 'Hold barcode steady in frame'
+              : 'Point at the menu, or paste the text'}
           </p>
         </div>
 
-        {mode === 'label' && (
+        {(mode === 'label' || mode === 'menu') && (
           <div className="scan-frame">
             <span className="corner tl" /><span className="corner tr" />
             <span className="corner bl" /><span className="corner br" />
@@ -144,6 +183,10 @@ export default function ScanScreen({ onResult, onBack }) {
               className={`mode-btn ${mode === 'barcode' ? 'active' : ''}`}
               onClick={() => { setMode('barcode'); setError(null); }}
             >Barcode</button>
+            <button
+              className={`mode-btn ${mode === 'menu' ? 'active' : ''}`}
+              onClick={() => { setMode('menu'); setError(null); }}
+            >Menu</button>
           </div>
 
           {mode === 'label' && (
@@ -164,12 +207,49 @@ export default function ScanScreen({ onResult, onBack }) {
               }
             </div>
           )}
+
+          {mode === 'menu' && (
+            <>
+              <button
+                className={`capture-btn ${loading ? 'loading' : ''}`}
+                onClick={handleMenuCapture}
+                disabled={loading || !cameraReady}
+              >
+                {loading ? <span className="spinner" /> : <span className="capture-inner" />}
+              </button>
+              <button className="menu-paste-link" onClick={() => { setError(null); setShowPaste(true); }}>
+                Paste menu text instead
+              </button>
+            </>
+          )}
         </div>
 
         {error && (
           <div className="scan-error">
             <span>{error}</span>
             <button onClick={() => setError(null)}>Dismiss</button>
+          </div>
+        )}
+
+        {showPaste && (
+          <div className="paste-sheet" role="dialog" aria-modal="true" aria-label="Paste menu text">
+            <div className="paste-card">
+              <h2 className="paste-title">Paste menu text</h2>
+              <textarea
+                className="paste-textarea"
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder="Paste or type the menu here…"
+                rows={8}
+                autoFocus
+              />
+              <div className="paste-actions">
+                <button className="paste-cancel" onClick={() => setShowPaste(false)} disabled={loading}>Cancel</button>
+                <button className="paste-submit" onClick={handlePasteSubmit} disabled={loading || !pasteText.trim()}>
+                  {loading ? 'Analyzing…' : 'Analyze menu'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

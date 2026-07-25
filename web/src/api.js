@@ -86,3 +86,15 @@ export async function rematchBatch(items) {
     body: JSON.stringify({ items }),
   }));
 }
+
+export async function scanMenu({ imageBase64, text }) {
+  const token = await getToken();
+  return handle(await fetch(`${BASE_URL}/scan/menu`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(imageBase64 ? { imageBase64 } : { text }),
+  }));
+}
