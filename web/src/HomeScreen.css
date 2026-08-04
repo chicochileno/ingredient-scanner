@@ -454,3 +454,13 @@
   display: flex; align-items: center; justify-content: center;
 }
 .home-card-mini:focus-visible, .home-card-primary:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
+
+.home-footer-legal {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+}
+.home-footer-legal a {
+  color: var(--muted, #666);
+  text-decoration: underline;
+}

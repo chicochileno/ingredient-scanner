@@ -184,6 +184,11 @@ export default function HomeScreen({ user, onScan, onHistory, onProfiles, onList
         <button className="home-footer-btn" onClick={() => setShowAbout(true)}>
           How are ingredients flagged?
         </button>
+        <p className="home-footer-legal">
+          <a href="/terms">Terms of Service</a>
+          <span aria-hidden="true"> · </span>
+          <a href="/privacy">Privacy Policy</a>
+        </p>
       </div>
 
       {showAbout && <AboutSheet onClose={() => setShowAbout(false)} />}
