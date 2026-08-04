@@ -18,6 +18,10 @@ import { rematch } from './api';
 import { useLists, ListContext } from './useLists';
 import ListsScreen, { ListDetailScreen } from './ListsScreen';
 import SharePage from './SharePage';
+import TermsGate from './TermsGate';
+import { TermsPage, PrivacyPage } from './LegalPages';
+import { useLegal } from './useLegal';
+import { needsTermsAcceptance, CURRENT_TERMS_VERSION } from './legal';
 
 function RequireAuth({ user, authReady, children }) {
   if (!authReady) return null;
@@ -132,6 +136,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
   const profileAPI = useProfiles(user);
   const listAPI = useLists(user);
   const billing = useBilling(user);
+  const legal = useLegal(user);
 
   async function handleResult(data, src, imageBase64) {
     let imageUrl = null;
@@ -190,7 +195,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
     navigate('/results', { state: { result: data, source: src, imageUrl } });
   }
 
-  if (!authReady) {
+  if (!authReady || (user && legal.loading)) {
     return (
       <ListContext.Provider value={listAPI}>
       <ProfileContext.Provider value={profileAPI}>
@@ -212,12 +217,24 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
     );
   }
 
+  if (user && needsTermsAcceptance(legal.acceptance, CURRENT_TERMS_VERSION)) {
+    return (
+      <Routes>
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="*" element={<TermsGate user={user} />} />
+      </Routes>
+    );
+  }
+
   return (
     <ListContext.Provider value={listAPI}>
     <ProfileContext.Provider value={profileAPI}>
       <BillingContext.Provider value={billing}>
         <Routes>
         <Route path="/s/:shareId" element={<SharePage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route
           path="/"
           element={

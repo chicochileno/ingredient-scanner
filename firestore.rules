@@ -29,5 +29,9 @@ service cloud.firestore {
     match /users/{userId}/billing/{document} {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
+    // Terms/Privacy acceptance record (versioned). Owner read/write.
+    match /users/{userId}/legal/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }
