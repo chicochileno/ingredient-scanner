@@ -127,3 +127,13 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.login-legal {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+.login-legal a {
+  color: var(--muted, #666);
+  text-decoration: underline;
+}

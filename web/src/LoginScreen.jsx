@@ -71,6 +71,11 @@ export default function LoginScreen({ onSignedIn }) {
         <p className="login-privacy">
           Your scan history is private and only visible to you.
         </p>
+        <p className="login-legal">
+          <a href="/terms">Terms of Service</a>
+          <span aria-hidden="true"> · </span>
+          <a href="/privacy">Privacy Policy</a>
+        </p>
       </div>
     </div>
   );
