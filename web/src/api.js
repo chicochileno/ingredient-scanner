@@ -98,3 +98,12 @@ export async function scanMenu({ imageBase64, text }) {
     body: JSON.stringify(imageBase64 ? { imageBase64 } : { text }),
   }));
 }
+
+export async function submitSupport({ subject, message }) {
+  const token = await getToken();
+  return handle(await fetch(`${BASE_URL}/support`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ subject, message }),
+  }));
+}

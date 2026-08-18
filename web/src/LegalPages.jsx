@@ -77,7 +77,7 @@ export function TermsPage() {
       <p>These Terms, together with our Privacy Policy, are the entire agreement between you and us regarding the App, and supersede any prior agreements.</p>
 
       <h2>17. Contact Us</h2>
-      <p>Questions about these Terms can be submitted through the contact form available in the App.</p>
+      <p>Questions about these Terms can be submitted through the <a href="/support">contact form</a> available in the App.</p>
     </LegalLayout>
   );
 }
@@ -134,7 +134,7 @@ export function PrivacyPage() {
       <p>If you access the App from outside the USA, your information may be transferred to and processed in the USA or other countries where our service providers operate, which may have different data protection laws than your own.</p>
 
       <h2>9. Contact Us</h2>
-      <p>Questions about this Privacy Policy, or requests to exercise your privacy rights, can be submitted through the contact form available in the App.</p>
+      <p>Questions about this Privacy Policy, or requests to exercise your privacy rights, can be submitted through the <a href="/support">contact form</a> available in the App.</p>
 
       <h2>10. Changes to This Policy</h2>
       <p>We may update this Privacy Policy from time to time. If we make material changes, we'll update the Effective Date above and, where appropriate, notify you through the App.</p>

@@ -88,7 +88,7 @@ function AboutSheet({ onClose }) {
   );
 }
 
-export default function HomeScreen({ user, onScan, onHistory, onProfiles, onLists, onUpgrade }) {
+export default function HomeScreen({ user, onScan, onHistory, onProfiles, onLists, onUpgrade, onSupport }) {
   const firstName = user.displayName?.split(' ')[0] || 'there';
   const [showAbout, setShowAbout] = useState(false);
   const { profiles } = useProfileContext();
@@ -183,6 +183,9 @@ export default function HomeScreen({ user, onScan, onHistory, onProfiles, onList
         )}
         <button className="home-footer-btn" onClick={() => setShowAbout(true)}>
           How are ingredients flagged?
+        </button>
+        <button className="home-footer-btn" onClick={onSupport}>
+          Support
         </button>
         <p className="home-footer-legal">
           <a href="/terms">Terms of Service</a>

@@ -52,7 +52,7 @@ We use reasonable administrative, technical, and organizational safeguards to pr
 If you access the App from outside the USA, your information may be transferred to and processed in the USA or other countries where our service providers operate, which may have different data protection laws than your own.
 
 ## 9. Contact Us
-Questions about this Privacy Policy, or requests to exercise your privacy rights, can be submitted through the contact form available in the App.
+Questions about this Privacy Policy, or requests to exercise your privacy rights, can be submitted through the [contact form](/support) available in the App.
 
 ## 10. Changes to This Policy
 We may update this Privacy Policy from time to time. If we make material changes, we'll update the Effective Date above and, where appropriate, notify you through the App.
