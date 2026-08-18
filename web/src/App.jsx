@@ -10,6 +10,7 @@ import ScanScreen from './ScanScreen';
 import ResultsScreen from './ResultsScreen';
 import MenuResultsScreen from './MenuResultsScreen';
 import HistoryScreen from './HistoryScreen';
+import SupportScreen from './SupportScreen';
 import { useProfiles, ProfileContext } from './useProfiles';
 import ProfilesScreen from './ProfilesScreen';
 import { useBilling, BillingContext } from './useBilling';
@@ -29,8 +30,8 @@ function RequireAuth({ user, authReady, children }) {
   return children;
 }
 
-function HomeRoute({ user, onScan, onHistory, onProfiles, onLists, onUpgrade }) {
-  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onProfiles={onProfiles} onLists={onLists} onUpgrade={onUpgrade} />;
+function HomeRoute({ user, onScan, onHistory, onProfiles, onLists, onUpgrade, onSupport }) {
+  return <HomeScreen user={user} onScan={onScan} onHistory={onHistory} onProfiles={onProfiles} onLists={onLists} onUpgrade={onUpgrade} onSupport={onSupport} />;
 }
 
 function ResultsRoute() {
@@ -254,6 +255,7 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
                 onProfiles={() => navigate('/profiles')}
                 onLists={() => navigate('/lists')}
                 onUpgrade={() => navigate('/upgrade')}
+                onSupport={() => navigate('/support')}
               />
             </RequireAuth>
           }
@@ -326,6 +328,14 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           element={
             <RequireAuth user={user} authReady={authReady}>
               <ListDetailScreen user={user} onBack={() => navigate('/lists')} />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/support"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <SupportScreen onBack={() => navigate('/home')} />
             </RequireAuth>
           }
         />
