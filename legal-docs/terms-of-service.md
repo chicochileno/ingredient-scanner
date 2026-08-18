@@ -60,4 +60,4 @@ If any provision of these Terms is found unenforceable, the remaining provisions
 These Terms, together with our Privacy Policy, are the entire agreement between you and us regarding the App, and supersede any prior agreements.
 
 ## 17. Contact Us
-Questions about these Terms can be submitted through the contact form available in the App.
+Questions about these Terms can be submitted through the [contact form](/support) available in the App.
