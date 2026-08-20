@@ -1,15 +1,11 @@
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ProfilesScreen.css';
 import './AllergensScreen.css'; // reuse sheet/input styles
 import { useProfileContext } from './useProfiles';
-import ProfileEditor from './ProfileEditor';
 
 export default function ProfilesScreen({ onBack }) {
   const { profiles, addProfile } = useProfileContext();
-  const [editingId, setEditingId] = useState(null);
-  const editing = profiles.find((p) => p.id === editingId);
-
-  if (editing) return <ProfileEditor profile={editing} onClose={() => setEditingId(null)} />;
+  const navigate = useNavigate();
 
   const multi = profiles.length > 1;
 
@@ -24,7 +20,7 @@ export default function ProfilesScreen({ onBack }) {
           const label = p.name || (multi ? 'Unnamed profile' : 'Your profile');
           const needsName = multi && !p.name;
           return (
-            <button key={p.id} className="profile-row" onClick={() => setEditingId(p.id)}>
+            <button key={p.id} className="profile-row" onClick={() => navigate(`/profiles/${p.id}`)}>
               <span className="profile-row-name">{label}</span>
               <span className="profile-row-sub">
                 {needsName ? 'Tap to name' : `${(p.activeCategories || []).length} categories flagged`}
@@ -33,7 +29,8 @@ export default function ProfilesScreen({ onBack }) {
           );
         })}
         <button className="profiles-add" onClick={async () => {
-          await addProfile('');
+          const id = await addProfile('');
+          navigate(`/profiles/${id}`);
         }}>+ Add profile</button>
       </div>
     </div>

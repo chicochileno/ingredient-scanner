@@ -15,7 +15,7 @@
 .profile-chip { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border, #ccc); background: #fff; cursor: pointer; font-size: 0.9rem; }
 .profile-chip-flagged { border-color: #d98b8b; }
 .profile-chip-safe { border-color: #9ec5a1; }
-.profile-chip-sel { background: var(--sage, #4a7c59); color: #fff; border-color: var(--sage, #4a7c59); }
+.profile-chip-sel { background: var(--sage); color: #fff; border-color: var(--sage); }
 .menu-section { margin-bottom: 20px; }
 .menu-section-title { font-size: 1rem; margin: 0 0 10px; }
 .menu-section-avoid { color: #a33; }
