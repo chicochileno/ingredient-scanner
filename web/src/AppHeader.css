@@ -1,0 +1,23 @@
+.app-header {
+  flex: none;
+  background: var(--sage-deep);
+  color: var(--on-chrome);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; padding-top: calc(12px + env(safe-area-inset-top, 0));
+  min-height: 52px;
+}
+.app-header-left { display: flex; align-items: center; min-width: 0; }
+.app-header-logo { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; }
+.app-header-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--on-chrome); font: inherit; cursor: pointer; padding: 4px 0; }
+.app-header-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+.app-header-back:focus-visible, .app-header-avatar-btn:focus-visible { outline: 2px solid var(--on-chrome); outline-offset: 2px; border-radius: 8px; }
+.app-header-account { position: relative; }
+.app-header-avatar-btn { background: none; border: none; padding: 0; cursor: pointer; border-radius: 50%; }
+.app-header-avatar { width: 34px; height: 34px; border-radius: 50%; display: block; object-fit: cover; }
+.app-header-avatar-fallback { background: var(--sage); color: var(--on-chrome); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+
+/* About sheet (relocated from Home) */
+.about-sheet { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: flex-end; justify-content: center; z-index: 70; }
+.about-card { width: 100%; max-width: 560px; background: var(--surface); border-radius: 20px 20px 0 0; padding: 22px; }
+.about-title { font-family: var(--font-display); margin: 0 0 10px; }
+.about-close { margin-top: 16px; width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--sage); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
