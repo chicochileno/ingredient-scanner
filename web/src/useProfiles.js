@@ -38,12 +38,13 @@ export function useProfiles(user) {
   }, [user?.uid]);
 
   async function addProfile(name) {
-    await addDoc(collection(db, 'users', user.uid, 'profiles'), {
+    const ref = await addDoc(collection(db, 'users', user.uid, 'profiles'), {
       name: name?.trim() || null,
       activeCategories: CATEGORY_KEYS,
       order: profiles.length,
       createdAt: serverTimestamp(),
     });
+    return ref.id;
   }
   async function renameProfile(id, name) {
     await updateDoc(doc(db, 'users', user.uid, 'profiles', id), { name: name?.trim() || null });

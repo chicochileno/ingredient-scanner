@@ -12,7 +12,8 @@ import MenuResultsScreen from './MenuResultsScreen';
 import HistoryScreen from './HistoryScreen';
 import SupportScreen from './SupportScreen';
 import AppShell from './AppShell';
-import { useProfiles, ProfileContext } from './useProfiles';
+import { useProfiles, ProfileContext, useProfileContext } from './useProfiles';
+import ProfileEditor from './ProfileEditor';
 import ProfilesScreen from './ProfilesScreen';
 import { useBilling, BillingContext } from './useBilling';
 import { UpgradeScreen, UpgradeSuccessScreen } from './UpgradeScreen';
@@ -61,6 +62,15 @@ function MenuResultsRoute() {
       onBack={() => navigate('/home')}
     />
   );
+}
+
+function ProfileEditorRoute() {
+  const navigate = useNavigate();
+  const { profileId } = useParams();
+  const { profiles } = useProfileContext();
+  const profile = profiles.find((p) => p.id === profileId);
+  if (!profile) return <Navigate to="/profiles" replace />;
+  return <ProfileEditor profile={profile} onClose={() => navigate('/profiles')} />;
 }
 
 function HistoryScanRoute({ user }) {
@@ -321,6 +331,14 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           element={
             <RequireAuth user={user} authReady={authReady}>
               <SupportScreen onBack={() => navigate('/home')} />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/profiles/:profileId"
+          element={
+            <RequireAuth user={user} authReady={authReady}>
+              <ProfileEditorRoute />
             </RequireAuth>
           }
         />
