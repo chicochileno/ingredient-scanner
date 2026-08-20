@@ -11,10 +11,6 @@ export default function ProfilesScreen({ onBack }) {
 
   return (
     <div className="profiles-root">
-      <div className="profiles-header">
-        <button className="profiles-back" onClick={onBack} aria-label="Back to home">‹ Back</button>
-        <h1 className="profiles-title">Profiles</h1>
-      </div>
       <div className="profiles-scroll">
         {profiles.map((p) => {
           const label = p.name || (multi ? 'Unnamed profile' : 'Your profile');

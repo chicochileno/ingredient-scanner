@@ -1,49 +1,21 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfileContext } from './useProfiles';
 import { useBillingContext } from './useBilling';
 import { useRecentScans } from './useRecentScans';
 import { profileAvatar, scanCardModel } from './homeModel';
-import AccountMenu from './AccountMenu';
 import './HomeScreen.css';
-
-function AboutSheet({ onClose }) {
-  return (
-    <div className="about-sheet" role="dialog" aria-modal="true" aria-label="How are ingredients flagged">
-      <div className="about-card">
-        <h2 className="about-title">How are ingredients flagged?</h2>
-        <p>Each profile has a set of ingredient categories to watch for. When you scan a product or menu, we check the ingredients against every profile's list and flag anything that matches — always as guidance, not a guarantee.</p>
-        <button className="about-close" onClick={onClose}>Got it</button>
-      </div>
-    </div>
-  );
-}
 
 export default function HomeScreen({ user, onUpgrade }) {
   const navigate = useNavigate();
   const { profiles } = useProfileContext();
   const { scanCount, subscriptionStatus, loading: billingLoading } = useBillingContext();
   const { scans } = useRecentScans(user, 8);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showAbout, setShowAbout] = useState(false);
 
   const isSubscribed = subscriptionStatus === 'active';
   const atLimit = !isSubscribed && scanCount >= 10;
 
   return (
     <div className="home">
-      <header className="home-header">
-        <div className="home-brand">IngredientScan</div>
-        <div className="home-account">
-          <button className="home-avatar-btn" aria-label="Account menu" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}>
-            {user.photoURL
-              ? <img className="home-avatar" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
-              : <span className="home-avatar home-avatar-fallback">{(user.displayName || '?')[0]}</span>}
-          </button>
-          {menuOpen && <AccountMenu onClose={() => setMenuOpen(false)} onAbout={() => setShowAbout(true)} />}
-        </div>
-      </header>
-
       {!isSubscribed && !billingLoading && (
         <button className="home-upgrade" onClick={onUpgrade}>
           <span className="home-upgrade-text">{atLimit ? 'Free scans used up' : `${scanCount} of 10 free scans used`}</span>
@@ -96,8 +68,6 @@ export default function HomeScreen({ user, onUpgrade }) {
           )}
         </div>
       </section>
-
-      {showAbout && <AboutSheet onClose={() => setShowAbout(false)} />}
     </div>
   );
 }
