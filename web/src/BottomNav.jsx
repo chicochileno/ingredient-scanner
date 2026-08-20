@@ -26,11 +26,14 @@ export default function BottomNav() {
         {TABS.slice(0, 2).map((t) => (
           <TabButton key={t.to} tab={t} active={pathname === t.to} onClick={() => navigate(t.to)} />
         ))}
-        <button className="bottomnav-fab" aria-label="Scan" onClick={() => navigate('/scan')}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M7 12h10" />
-          </svg>
-        </button>
+        <div className="bottomnav-scan">
+          <button className="bottomnav-fab" aria-label="Scan" onClick={() => navigate('/scan')}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M7 12h10" />
+            </svg>
+          </button>
+          <span className="bottomnav-scan-label">Scan</span>
+        </div>
         {TABS.slice(2).map((t) => (
           <TabButton key={t.to} tab={t} active={pathname === t.to} onClick={() => navigate(t.to)} />
         ))}
