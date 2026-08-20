@@ -1,0 +1,13 @@
+.app-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+.app-shell-content {
+  flex: 1;
+  min-height: 0;            /* allow inner regions to scroll */
+  padding-bottom: 64px;     /* clear the fixed bottom nav */
+  overflow: hidden;
+}

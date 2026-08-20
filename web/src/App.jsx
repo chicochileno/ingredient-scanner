@@ -11,6 +11,7 @@ import ResultsScreen from './ResultsScreen';
 import MenuResultsScreen from './MenuResultsScreen';
 import HistoryScreen from './HistoryScreen';
 import SupportScreen from './SupportScreen';
+import AppShell from './AppShell';
 import { useProfiles, ProfileContext } from './useProfiles';
 import ProfilesScreen from './ProfilesScreen';
 import { useBilling, BillingContext } from './useBilling';
@@ -244,10 +245,10 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
               : <LoginScreen onSignedIn={(u) => { setUser(u); setAuthReady(true); }} />
           }
         />
-        <Route
-          path="/home"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
+        <Route element={<RequireAuth user={user} authReady={authReady}><AppShell /></RequireAuth>}>
+          <Route
+            path="/home"
+            element={
               <HomeRoute
                 user={user}
                 onScan={() => navigate('/scan')}
@@ -257,9 +258,21 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
                 onUpgrade={() => navigate('/upgrade')}
                 onSupport={() => navigate('/support')}
               />
-            </RequireAuth>
-          }
-        />
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <HistoryScreen
+                user={user}
+                onBack={() => navigate('/home')}
+                onSelect={(scan) => navigate(`/history/${scan.id}`, { state: { scan } })}
+              />
+            }
+          />
+          <Route path="/profiles" element={<ProfilesScreen onBack={() => navigate('/home')} />} />
+          <Route path="/lists" element={<ListsScreen onBack={() => navigate('/home')} onOpen={(id) => navigate(`/lists/${id}`)} />} />
+        </Route>
         <Route
           path="/scan"
           element={
@@ -288,38 +301,10 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
           }
         />
         <Route
-          path="/history"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <HistoryScreen
-                user={user}
-                onBack={() => navigate('/home')}
-                onSelect={(scan) => navigate(`/history/${scan.id}`, { state: { scan } })}
-              />
-            </RequireAuth>
-          }
-        />
-        <Route
           path="/history/:scanId"
           element={
             <RequireAuth user={user} authReady={authReady}>
               <HistoryScanRoute user={user} />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/profiles"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <ProfilesScreen onBack={() => navigate('/home')} />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/lists"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <ListsScreen onBack={() => navigate('/home')} onOpen={(id) => navigate(`/lists/${id}`)} />
             </RequireAuth>
           }
         />
