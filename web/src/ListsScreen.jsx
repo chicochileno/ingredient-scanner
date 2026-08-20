@@ -110,7 +110,6 @@ export function ListDetailScreen({ user, onBack }) {
   return (
     <div className="lists-root">
       <div className="lists-header">
-        <button className="lists-back" onClick={onBack} aria-label="Back to lists">‹ Back</button>
         <input className="ld-name" defaultValue={list.name} maxLength={50}
           onBlur={(e) => renameList(listId, e.target.value)} aria-label="List name" />
       </div>

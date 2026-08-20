@@ -62,10 +62,6 @@ export default function ProfileEditor({ profile, onClose }) {
 
   return (
     <div className="pe-root">
-      <div className="pe-header">
-        <button className="pe-back" onClick={onClose} aria-label="Back to profiles">‹ Back</button>
-        <h1 className="pe-title">Edit profile</h1>
-      </div>
       <div className="pe-scroll">
         <label htmlFor="pe-name" className="pe-label">Profile name</label>
         <input id="pe-name" className="allergen-input" placeholder="e.g. Emma (optional)"
