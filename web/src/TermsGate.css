@@ -23,7 +23,7 @@
 .terms-gate-points { margin: 0 0 16px; padding-left: 20px; line-height: 1.5; }
 .terms-gate-points li { margin-bottom: 8px; }
 .terms-gate-links { margin: 0 0 16px; }
-.terms-gate-links a { color: #2f6b46; text-decoration: underline; }
+.terms-gate-links a { color: var(--sage); text-decoration: underline; }
 .terms-gate-checkbox {
   display: flex;
   gap: 10px;
@@ -38,7 +38,7 @@
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: var(--sage, #4a7c59);
+  background: var(--sage);
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -60,6 +60,6 @@
 .terms-gate-card a:focus-visible,
 .terms-gate-card button:focus-visible,
 .terms-gate-card input:focus-visible {
-  outline: 2px solid #2f6b46;
+  outline: 2px solid var(--sage);
   outline-offset: 2px;
 }

@@ -16,7 +16,7 @@
 }
 .support-textarea { resize: vertical; }
 .support-input:focus-visible, .support-textarea:focus-visible {
-  outline: 2px solid #2f6b46;
+  outline: 2px solid var(--sage);
   outline-offset: 1px;
 }
 .support-error { color: #b23b3b; margin: 12px 0 0; }
@@ -25,7 +25,7 @@
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: var(--sage, #4a7c59);
+  background: var(--sage);
   color: #fff;
   font: inherit;
   font-weight: 600;

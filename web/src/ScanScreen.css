@@ -300,5 +300,5 @@
   cursor: pointer;
 }
 .paste-cancel { background: transparent; border: 1px solid var(--border, #ccc); }
-.paste-submit { background: var(--sage, #4a7c59); color: #fff; border: none; }
+.paste-submit { background: var(--sage); color: #fff; border: none; }
 .paste-submit:disabled, .paste-cancel:disabled { opacity: 0.5; cursor: default; }
