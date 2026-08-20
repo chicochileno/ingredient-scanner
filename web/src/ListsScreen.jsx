@@ -30,10 +30,6 @@ export default function ListsScreen({ onBack, onOpen }) {
 
   return (
     <div className="lists-root">
-      <div className="lists-header">
-        <button className="lists-back" onClick={onBack} aria-label="Back to home">‹ Back</button>
-        <h1 className="lists-title">Lists</h1>
-      </div>
       <div className="lists-scroll">
         {lists.length === 0 && <p className="lists-empty">No lists yet. Create one below, or tap "Save to list" after a scan.</p>}
         {lists.map((l) => (
@@ -114,7 +110,6 @@ export function ListDetailScreen({ user, onBack }) {
   return (
     <div className="lists-root">
       <div className="lists-header">
-        <button className="lists-back" onClick={onBack} aria-label="Back to lists">‹ Back</button>
         <input className="ld-name" defaultValue={list.name} maxLength={50}
           onBlur={(e) => renameList(listId, e.target.value)} aria-label="List name" />
       </div>

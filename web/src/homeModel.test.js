@@ -41,3 +41,12 @@ test('scanCardModel: menu scan flagged from snapshot', () => {
   const flagged = scanCardModel({ mode: 'menu', menuSnapshot: { profiles: [{ flaggedCount: 3 }, { flaggedCount: 0 }] } });
   assert.strictEqual(flagged.status, 'flagged');
 });
+
+import { scanModeBadge } from './homeModel.js';
+
+test('scanModeBadge maps modes (camera/unknown → label)', () => {
+  assert.deepStrictEqual(scanModeBadge('barcode'), { key: 'barcode', label: 'Barcode scan' });
+  assert.deepStrictEqual(scanModeBadge('menu'), { key: 'menu', label: 'Menu scan' });
+  assert.deepStrictEqual(scanModeBadge('camera'), { key: 'label', label: 'Label scan' });
+  assert.deepStrictEqual(scanModeBadge(undefined), { key: 'label', label: 'Label scan' });
+});

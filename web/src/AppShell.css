@@ -7,7 +7,6 @@
 }
 .app-shell-content {
   flex: 1;
-  min-height: 0;            /* allow inner regions to scroll */
-  padding-bottom: 64px;     /* clear the fixed bottom nav */
+  min-height: 0;      /* let inner screens own their scroll */
   overflow: hidden;
 }

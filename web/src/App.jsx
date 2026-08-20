@@ -197,14 +197,14 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
             flaggedProfileCount: (data.profiles || []).filter((p) => (p.flagged || []).length > 0).length,
             totalProfiles: (data.profiles || []).length,
           },
-          imageUrl,
+          imageUrl: imageUrl || data.imageUrl || null,
         });
       } catch (e) {
         console.error('Failed to save scan', e);
       }
     }
 
-    navigate('/results', { state: { result: data, source: src, imageUrl } });
+    navigate('/results', { state: { result: data, source: src, imageUrl: imageUrl || data.imageUrl || null } });
   }
 
   if (!authReady || (user && legal.loading)) {
@@ -280,8 +280,16 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
               />
             }
           />
+          <Route path="/history/:scanId" element={<HistoryScanRoute user={user} />} />
           <Route path="/profiles" element={<ProfilesScreen onBack={() => navigate('/home')} />} />
+          <Route path="/profiles/:profileId" element={<ProfileEditorRoute />} />
           <Route path="/lists" element={<ListsScreen onBack={() => navigate('/home')} onOpen={(id) => navigate(`/lists/${id}`)} />} />
+          <Route path="/lists/:listId" element={<ListDetailScreen user={user} onBack={() => navigate('/lists')} />} />
+          <Route path="/results" element={<ResultsRoute />} />
+          <Route path="/menu-results" element={<MenuResultsRoute />} />
+          <Route path="/support" element={<SupportScreen onBack={() => navigate('/home')} />} />
+          <Route path="/upgrade" element={<UpgradeScreen onBack={() => navigate('/home')} />} />
+          <Route path="/upgrade/success" element={<UpgradeSuccessScreen />} />
         </Route>
         <Route
           path="/scan"
@@ -291,70 +299,6 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
                 onResult={handleResult}
                 onBack={() => navigate('/home')}
               />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/results"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <ResultsRoute />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/menu-results"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <MenuResultsRoute />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/history/:scanId"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <HistoryScanRoute user={user} />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/lists/:listId"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <ListDetailScreen user={user} onBack={() => navigate('/lists')} />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/support"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <SupportScreen onBack={() => navigate('/home')} />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/profiles/:profileId"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <ProfileEditorRoute />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/upgrade"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <UpgradeScreen onBack={() => navigate('/home')} />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/upgrade/success"
-          element={
-            <RequireAuth user={user} authReady={authReady}>
-              <UpgradeSuccessScreen />
             </RequireAuth>
           }
         />

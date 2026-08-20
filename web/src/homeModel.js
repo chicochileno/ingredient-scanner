@@ -32,3 +32,10 @@ export function scanCardModel(scan = {}) {
   const label = status === 'safe' ? 'Safe' : `Flagged (${flaggedCount})`;
   return { name, imageUrl, status, label };
 }
+
+// Mode → badge descriptor for scan cards. key selects the icon; label is for a11y.
+export function scanModeBadge(mode) {
+  if (mode === 'barcode') return { key: 'barcode', label: 'Barcode scan' };
+  if (mode === 'menu') return { key: 'menu', label: 'Menu scan' };
+  return { key: 'label', label: 'Label scan' };
+}
