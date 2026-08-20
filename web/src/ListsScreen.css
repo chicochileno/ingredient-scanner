@@ -14,7 +14,7 @@
 .stl-list-btn { text-align: left; padding: 12px 14px; border: 1px solid var(--border, var(--border)); border-radius: 10px; background: #fff; cursor: pointer; }
 .stl-list-btn:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 .stl-saved { text-align: center; color: var(--safe); font-weight: 600; padding: 16px 0; }
-.lists-root { display: flex; flex-direction: column; height: 100dvh; background: var(--bg); }
+.lists-root { display: flex; flex-direction: column; height: 100%; background: var(--bg); }
 .lists-header { display: flex; align-items: center; gap: 12px; padding: 16px; }
 .lists-back { background: none; border: none; font-size: 16px; color: var(--sage, #3a7); cursor: pointer; }
 .lists-back:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }

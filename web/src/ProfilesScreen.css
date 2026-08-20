@@ -1,4 +1,4 @@
-.profiles-root { display:flex; flex-direction:column; height:100dvh; background:var(--bg); }
+.profiles-root { display:flex; flex-direction:column; height:100%; background:var(--bg); }
 .profiles-header { display:flex; align-items:center; gap:12px; padding:16px; }
 .profiles-back { background:none; border:none; font-size:16px; color:var(--sage,#3a7); cursor:pointer; }
 .profiles-title { font-size:22px; margin:0; }
@@ -11,7 +11,7 @@
 .profiles-add { width:100%; padding:14px; border:1px dashed var(--border); border-radius:12px;
   background:none; color:var(--ink-2); font-size:15px; cursor:pointer; }
 /* editor */
-.pe-root { display:flex; flex-direction:column; height:100dvh; background:var(--bg); }
+.pe-root { display:flex; flex-direction:column; height:100%; background:var(--bg); }
 .pe-header { display:flex; align-items:center; gap:12px; padding:16px; }
 .pe-back { background:none; border:none; font-size:16px; color:var(--sage,#3a7); cursor:pointer; }
 .pe-title { font-size:20px; margin:0; }
