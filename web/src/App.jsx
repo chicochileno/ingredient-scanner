@@ -197,14 +197,14 @@ function AppRoutes({ user, authReady, setUser, setAuthReady }) {
             flaggedProfileCount: (data.profiles || []).filter((p) => (p.flagged || []).length > 0).length,
             totalProfiles: (data.profiles || []).length,
           },
-          imageUrl,
+          imageUrl: imageUrl || data.imageUrl || null,
         });
       } catch (e) {
         console.error('Failed to save scan', e);
       }
     }
 
-    navigate('/results', { state: { result: data, source: src, imageUrl } });
+    navigate('/results', { state: { result: data, source: src, imageUrl: imageUrl || data.imageUrl || null } });
   }
 
   if (!authReady || (user && legal.loading)) {
