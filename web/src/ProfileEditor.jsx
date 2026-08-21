@@ -64,14 +64,14 @@ export default function ProfileEditor({ profile, onClose }) {
     <div className="pe-root">
       <div className="pe-scroll">
         <label htmlFor="pe-name" className="pe-label">Profile name</label>
-        <input id="pe-name" className="allergen-input" placeholder="e.g. Emma (optional)"
+        <input id="pe-name" className="ui-input" placeholder="e.g. Emma (optional)"
           defaultValue={profile.name || ''} maxLength={40}
           onBlur={(e) => renameProfile(profile.id, e.target.value)} />
 
         <p className="pe-section-label">Quick presets</p>
         <div className="pe-presets">
           {PRESETS.map((p) => (
-            <button key={p.key} className="pe-preset" onClick={() => applyPreset(p)}
+            <button key={p.key} className="ui-pill ui-pill-neutral pe-preset" onClick={() => applyPreset(p)}
               aria-label={`Apply ${p.label} preset — ${p.description}`}>{p.label}</button>
           ))}
         </div>
@@ -103,7 +103,7 @@ export default function ProfileEditor({ profile, onClose }) {
         <button className="pe-add-allergen" onClick={() => setShowShare(true)}>Share profile…</button>
 
         {profiles.length > 1 && (
-          <button className="pe-delete" onClick={() => { deleteProfile(profile.id); onClose(); }}>
+          <button className="ui-btn pe-delete" onClick={() => { deleteProfile(profile.id); onClose(); }}>
             Delete this profile
           </button>
         )}

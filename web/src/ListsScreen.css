@@ -1,9 +1,9 @@
 .save-list-btn {
   flex: 1;
   padding: 14px;
-  border: 1px solid var(--border, var(--border));
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--surface);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -11,18 +11,17 @@
 .save-list-btn:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 .results-footer { display: flex; gap: 10px; }
 .stl-lists { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.stl-list-btn { text-align: left; padding: 12px 14px; border: 1px solid var(--border, var(--border)); border-radius: 10px; background: #fff; cursor: pointer; }
+.stl-list-btn { text-align: left; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; }
 .stl-list-btn:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 .stl-saved { text-align: center; color: var(--safe); font-weight: 600; padding: 16px 0; }
 .lists-root { display: flex; flex-direction: column; height: 100%; background: var(--bg); }
 .lists-header { display: flex; align-items: center; gap: 12px; padding: 16px; }
-.lists-back { background: none; border: none; font-size: 16px; color: var(--sage, #3a7); cursor: pointer; }
+.lists-back { background: none; border: none; font-size: 16px; color: var(--sage); cursor: pointer; }
 .lists-back:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 .lists-title { font-size: 22px; margin: 0; }
 .lists-scroll { flex: 1; overflow-y: auto; padding: 0 16px 24px; }
 .lists-empty { color: var(--muted); font-size: 14px; }
-.list-row { display: flex; width: 100%; text-align: left; background: #fff; border: 1px solid var(--border, var(--border));
-  border-radius: 12px; padding: 16px; margin-bottom: 10px; cursor: pointer; }
+.list-row { display: flex; width: 100%; text-align: left; margin-bottom: 10px; cursor: pointer; }
 .list-row:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 .list-row-name { font-size: 16px; font-weight: 600; }
 .lists-new { margin-top: 16px; }
@@ -31,10 +30,10 @@
 .ld-name { flex: 1; font-size: 18px; font-weight: 600; border: none; background: none; padding: 4px 0; }
 .ld-name:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 .ld-filter { display: flex; gap: 8px; margin-bottom: 12px; }
-.ld-filter-btn { padding: 6px 12px; border: 1px solid var(--border, var(--border)); border-radius: 999px; background: #fff; font-size: 13px; cursor: pointer; }
+.ld-filter-btn { border: 1px solid var(--border); background: var(--surface); cursor: pointer; }
 .ld-filter-on { border-color: var(--sage); color: var(--sage); font-weight: 700; }
 .ld-filter-btn:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
-.ld-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.ld-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .ld-item input[type="checkbox"] { width: 20px; height: 20px; }
 .ld-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
 .ld-thumb-ph { display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--muted); }
@@ -49,5 +48,5 @@
 .ld-remove:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 .ld-section { margin: 18px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
 .ld-add { margin-top: 18px; }
-.ld-delete { margin-top: 28px; width: 100%; padding: 12px; border: 1px solid #fecaca; color: var(--danger); background: #fff; border-radius: 10px; cursor: pointer; }
+.ld-delete { margin-top: 28px; width: 100%; border: 1px solid var(--danger); color: var(--danger); background: var(--surface); }
 .ld-delete:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }

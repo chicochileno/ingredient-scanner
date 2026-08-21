@@ -16,7 +16,7 @@ export default function ProfilesScreen({ onBack }) {
           const label = p.name || (multi ? 'Unnamed profile' : 'Your profile');
           const needsName = multi && !p.name;
           return (
-            <button key={p.id} className="profile-row" onClick={() => navigate(`/profiles/${p.id}`)}>
+            <button key={p.id} className="ui-card profile-row" onClick={() => navigate(`/profiles/${p.id}`)}>
               <span className="profile-row-name">{label}</span>
               <span className="profile-row-sub">
                 {needsName ? 'Tap to name' : `${(p.activeCategories || []).length} categories flagged`}
