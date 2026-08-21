@@ -4,16 +4,11 @@ import './AllergensScreen.css';
 import './ListsScreen.css';
 import { dismissFlag } from './api';
 import SaveToListSheet from './SaveToListSheet';
+import { severityPill } from './resultsModel';
 
 function SeverityBadge({ tier, severity }) {
-  if (tier === 'possible') {
-    return <span className="flag-severity flag-severity-possible">Worth checking</span>;
-  }
-  return (
-    <span className={`flag-severity flag-severity-${severity}`}>
-      {severity === 'high' ? 'High concern' : 'Moderate concern'}
-    </span>
-  );
+  const { variant, label } = severityPill({ tier, severity });
+  return <span className={`ui-pill ui-pill-${variant}`}>{label}</span>;
 }
 
 function Sources({ citations }) {
@@ -46,7 +41,7 @@ function IngredientCard({ item, index, onDismiss }) {
   const isPossible = item.tier === 'possible';
   const cardClass = isPossible ? 'card-possible' : isHigh ? 'card-high' : 'card-moderate';
   return (
-    <div className={`card ${cardClass}`} style={{ animationDelay: `${index * 60}ms` }}>
+    <div className={`ui-card card ${cardClass}`} style={{ animationDelay: `${index * 60}ms` }}>
       <div className="card-top">
         <div className="card-text">
           <span className="card-flag">{item.flag}</span>
@@ -123,7 +118,7 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
   return (
     <div className="results-root">
       <div className="results-scroll">
-        {imageUrl && <div className="results-photo-wrap"><img src={imageUrl} alt="Scanned item" className="results-photo" /></div>}
+        {imageUrl && <div className="ui-preview results-preview"><img src={imageUrl} alt="Scanned item" /></div>}
         <div className="results-header">
           {productName && <h1 className="results-product">{productName}</h1>}
           <p className="results-source">{source === 'barcode' ? 'Scanned via barcode' : 'Scanned via camera'}</p>
@@ -164,8 +159,8 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
         <p className="disclaimer">For informational purposes only. Not a substitute for medical or nutritional advice. Always consult a qualified professional.</p>
       </div>
       <div className="results-footer">
-        <button className="save-list-btn" onClick={() => setShowSave(true)}>Save to list</button>
-        <button className="scan-again-btn" onClick={onScanAgain}>{onBack ? 'New Scan' : 'Scan Again'}</button>
+        <button className="ui-btn ui-btn-secondary save-list-btn" onClick={() => setShowSave(true)}>Save to list</button>
+        <button className="ui-btn ui-btn-primary scan-again-btn" onClick={onScanAgain}>{onBack ? 'New Scan' : 'Scan Again'}</button>
       </div>
       {showSave && (
         <SaveToListSheet

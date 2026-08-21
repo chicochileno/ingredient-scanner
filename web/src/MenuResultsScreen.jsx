@@ -45,14 +45,14 @@ export default function MenuResultsScreen({ result, onScanAgain, onBack }) {
 
         {avoid.length > 0 && (
           <section className="menu-section">
-            <h2 className="menu-section-title menu-section-avoid">Avoid / check{multi && selected ? ` — ${selected.name || 'Unnamed'}` : ''}</h2>
+            <h2 className="ui-section-title menu-section-title menu-section-avoid">Avoid / check{multi && selected ? ` — ${selected.name || 'Unnamed'}` : ''}</h2>
             <div className="menu-dishes">
               {avoid.map((d, i) => (
-                <div className="menu-dish menu-dish-avoid" key={`a-${i}`}>
+                <div className="ui-card menu-dish menu-dish-avoid" key={`a-${i}`}>
                   <span className="menu-dish-name">{d.name}</span>
                   {d.categoryLabels.length > 0 && (
                     <div className="menu-dish-chips">
-                      {d.categoryLabels.map((label) => <span key={label} className="menu-chip">likely {label}</span>)}
+                      {d.categoryLabels.map((label) => <span key={label} className="ui-pill ui-pill-warning menu-chip">likely {label}</span>)}
                     </div>
                   )}
                   {d.allergens.length > 0 && <div className="menu-dish-allergens">Allergens: {d.allergens.join(', ')}</div>}
@@ -65,10 +65,10 @@ export default function MenuResultsScreen({ result, onScanAgain, onBack }) {
 
         {ok.length > 0 && (
           <section className="menu-section">
-            <h2 className="menu-section-title menu-section-ok">Looks OK</h2>
+            <h2 className="ui-section-title menu-section-title menu-section-ok">Looks OK</h2>
             <div className="menu-dishes">
               {ok.map((d, i) => (
-                <div className="menu-dish menu-dish-ok" key={`o-${i}`}>
+                <div className="ui-card menu-dish menu-dish-ok" key={`o-${i}`}>
                   <span className="menu-dish-name">{d.name}</span>
                 </div>
               ))}
@@ -79,7 +79,7 @@ export default function MenuResultsScreen({ result, onScanAgain, onBack }) {
         <p className="disclaimer">Likely, not a guarantee. For informational purposes only — always confirm with restaurant staff. Not a substitute for medical or nutritional advice.</p>
       </div>
       <div className="menu-results-footer">
-        <button className="scan-again-btn" onClick={onScanAgain}>{onBack ? 'New Scan' : 'Scan Again'}</button>
+        <button className="ui-btn ui-btn-primary" onClick={onScanAgain}>{onBack ? 'New Scan' : 'Scan Again'}</button>
       </div>
     </div>
   );
