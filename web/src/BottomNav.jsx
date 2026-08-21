@@ -32,7 +32,8 @@ export default function BottomNav() {
               <path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M7 12h10" />
             </svg>
           </button>
-          <span className="bottomnav-scan-label">Scan</span>
+          <span className="bottomnav-fab-spacer" aria-hidden="true" />
+          <span className="bottomnav-label">Scan</span>
         </div>
         {TABS.slice(2).map((t) => (
           <TabButton key={t.to} tab={t} active={pathname === t.to} onClick={() => navigate(t.to)} />
