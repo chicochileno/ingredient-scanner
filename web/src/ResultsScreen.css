@@ -19,19 +19,7 @@
   font-weight: 500;
 }
 
-.results-photo-wrap {
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin-bottom: 20px;
-  background: #000;
-}
-
-.results-photo {
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  display: block;
-}
+.results-preview { margin-bottom: 20px; }
 
 .results-scroll {
   flex: 1;
@@ -126,21 +114,11 @@
 
 .card {
   width: 100%;
-  background: var(--surface);
-  border-radius: var(--radius-sm);
-  padding: 16px;
   border-left: 3px solid transparent;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   animation: fadeUp 0.4s ease both;
 }
-.card-high {
-  border-left-color: var(--danger);
-  background: var(--surface);
-}
-.card-moderate {
-  border-left-color: var(--warning);
-  background: var(--surface);
-}
+.card-high { border-left: 3px solid var(--danger); }
+.card-moderate { border-left: 3px solid var(--warning); }
 
 .card-top {
   display: flex;
@@ -239,23 +217,10 @@
   bottom: 0;
   left: 0;
   right: 0;
+  display: flex;
+  gap: 12px;
   padding: 16px 20px env(safe-area-inset-bottom, 24px);
   background: linear-gradient(to top, var(--bg) 70%, transparent);
-}
-
-.scan-again-btn {
-  width: 100%;
-  background: var(--sage);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-full);
-  padding: 16px;
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  letter-spacing: -0.2px;
-  transition: opacity 0.15s;
 }
 .scan-again-btn:active { opacity: 0.85; }
 .results-footer .scan-again-btn { flex: 1; width: auto; }
@@ -272,10 +237,7 @@
 
 /* Worth Checking (possible) tier */
 .section-title-possible { color: var(--muted); }
-.card-possible {
-  border-left: 4px solid var(--sage);
-  background: var(--surface);
-}
+.card-possible { border-left: 3px solid var(--sage); }
 .flag-severity-possible {
   background: var(--chip);
   color: var(--sage-deep);
