@@ -33,7 +33,7 @@ export default function ListsScreen({ onBack, onOpen }) {
       <div className="lists-scroll">
         {lists.length === 0 && <p className="lists-empty">No lists yet. Create one below, or tap "Save to list" after a scan.</p>}
         {lists.map((l) => (
-          <button key={l.id} className="list-row" onClick={() => onOpen(l.id)}>
+          <button key={l.id} className="ui-card list-row" onClick={() => onOpen(l.id)}>
             <span className="list-row-name">{l.name}</span>
           </button>
         ))}
@@ -42,7 +42,7 @@ export default function ListsScreen({ onBack, onOpen }) {
           <input id="lists-new-name" className="allergen-input" placeholder="e.g. Road trip snacks"
             value={newName} onChange={(e) => setNewName(e.target.value)} maxLength={50}
             onKeyDown={(e) => e.key === 'Enter' && create()} />
-          <button className="lists-new-btn" onClick={create} disabled={!newName.trim() || adding}>
+          <button className="ui-btn ui-btn-primary lists-new-btn" onClick={create} disabled={!newName.trim() || adding}>
             {adding ? 'Creating…' : '+ New list'}
           </button>
         </div>
@@ -116,7 +116,7 @@ export function ListDetailScreen({ user, onBack }) {
       <div className="lists-scroll">
         <div className="ld-filter" role="group" aria-label="Filter items">
           {['all', 'safe', 'flags'].map((f) => (
-            <button key={f} className={`ld-filter-btn ${filter === f ? 'ld-filter-on' : ''}`}
+            <button key={f} className={`ui-pill ld-filter-btn ${filter === f ? 'ld-filter-on' : ''}`}
               aria-pressed={filter === f} onClick={() => setFilter(f)}>
               {f === 'all' ? 'All' : f === 'safe' ? 'Safe' : 'Has flags'}
             </button>
@@ -126,7 +126,7 @@ export function ListDetailScreen({ user, onBack }) {
         {visibleScanned.map((it) => {
           const st = statusText(statusById[it.id]);
           return (
-            <div key={it.id} className="ld-item">
+            <div key={it.id} className="ui-card ld-item">
               <input type="checkbox" checked={!!it.checked} aria-label={`Mark ${it.name} bought`}
                 onChange={(e) => toggleChecked(listId, it.id, e.target.checked)} />
               {it.imageUrl ? <img className="ld-thumb" src={it.imageUrl} alt="" /> : <span className="ld-thumb ld-thumb-ph">▦</span>}
@@ -141,7 +141,7 @@ export function ListDetailScreen({ user, onBack }) {
 
         {manual.length > 0 && <p className="ld-section">Not scanned</p>}
         {manual.map((it) => (
-          <div key={it.id} className="ld-item">
+          <div key={it.id} className="ui-card ld-item">
             <input type="checkbox" checked={!!it.checked} aria-label={`Mark ${it.name} bought`}
               onChange={(e) => toggleChecked(listId, it.id, e.target.checked)} />
             <div className="ld-item-body">
@@ -158,11 +158,11 @@ export function ListDetailScreen({ user, onBack }) {
             value={manualName} maxLength={60}
             onChange={(e) => setManualName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && manualName.trim()) { addManualItem(listId, manualName); setManualName(''); } }} />
-          <button className="lists-new-btn" disabled={!manualName.trim()}
+          <button className="ui-btn ui-btn-primary lists-new-btn" disabled={!manualName.trim()}
             onClick={() => { addManualItem(listId, manualName); setManualName(''); }}>+ Add item</button>
         </div>
 
-        <button className="ld-delete" onClick={() => { deleteList(listId); onBack(); }}>Delete this list</button>
+        <button className="ui-btn ld-delete" onClick={() => { deleteList(listId); onBack(); }}>Delete this list</button>
         <button className="pe-add-allergen" style={{ marginTop: 12 }} onClick={() => setShowShare(true)}>Share list…</button>
       </div>
       {showShare && (
