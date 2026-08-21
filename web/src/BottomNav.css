@@ -48,7 +48,7 @@
 .bottomnav-fab-spacer { width: 24px; height: 24px; }
 .bottomnav-fab {
   position: absolute;
-  top: -30px;
+  top: -36px;
   left: 50%;
   transform: translateX(-50%);
   width: 56px; height: 56px;
