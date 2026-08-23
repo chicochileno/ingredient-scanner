@@ -32,7 +32,7 @@ export default function SupportScreen({ onBack }) {
           <div className="support-sent" role="status">
             <p className="support-sent-title">Thanks — we got your message.</p>
             <p className="support-sent-sub">We’ll get back to you{user?.email ? ` at ${user.email}` : ''}.</p>
-            <button className="support-primary" onClick={onBack}>Back to app</button>
+            <button className="ui-btn ui-btn-primary" onClick={onBack}>Back to app</button>
           </div>
         ) : (
           <form className="support-form" onSubmit={handleSubmit}>
@@ -43,7 +43,7 @@ export default function SupportScreen({ onBack }) {
             <label className="support-label" htmlFor="support-subject">Subject</label>
             <input
               id="support-subject"
-              className="support-input"
+              className="ui-input"
               type="text"
               value={subject}
               maxLength={200}
@@ -53,7 +53,7 @@ export default function SupportScreen({ onBack }) {
             <label className="support-label" htmlFor="support-message">How can we help?</label>
             <textarea
               id="support-message"
-              className="support-textarea"
+              className="ui-input support-textarea"
               value={message}
               maxLength={5000}
               rows={8}
@@ -63,7 +63,7 @@ export default function SupportScreen({ onBack }) {
 
             {error && <p className="support-error" role="alert">{error}</p>}
 
-            <button className="support-primary" type="submit" disabled={status === 'sending' || !message.trim()}>
+            <button className="ui-btn ui-btn-primary" type="submit" disabled={status === 'sending' || !message.trim()}>
               {status === 'sending' ? 'Sending…' : 'Send message'}
             </button>
           </form>

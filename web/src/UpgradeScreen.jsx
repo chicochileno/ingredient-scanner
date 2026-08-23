@@ -57,7 +57,7 @@ export function UpgradeScreen({ onBack }) {
         {error && <p className="upgrade-error">{error}</p>}
 
         <button
-          className="upgrade-btn"
+          className="ui-btn ui-btn-primary upgrade-btn"
           onClick={handleUpgrade}
           disabled={loading}
         >
@@ -94,7 +94,7 @@ export function UpgradeSuccessScreen() {
           <div className="upgrade-icon">🎉</div>
           <h1 className="upgrade-title">You're all set!</h1>
           <p className="upgrade-sub">Your subscription is active.<br />Scan unlimited products.</p>
-          <button className="upgrade-btn" onClick={() => navigate('/home', { replace: true })}>
+          <button className="ui-btn ui-btn-primary upgrade-btn" onClick={() => navigate('/home', { replace: true })}>
             Start scanning
           </button>
         </div>
@@ -114,7 +114,7 @@ export function UpgradeSuccessScreen() {
             <p className="upgrade-sub" style={{ marginTop: 20 }}>
               Taking longer than expected. Your subscription will activate shortly.
             </p>
-            <button className="upgrade-btn" onClick={() => navigate('/home', { replace: true })}>
+            <button className="ui-btn ui-btn-primary upgrade-btn" onClick={() => navigate('/home', { replace: true })}>
               Continue
             </button>
           </>

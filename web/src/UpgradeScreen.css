@@ -105,19 +105,9 @@
 
 .upgrade-btn {
   width: 100%;
-  padding: 16px;
-  background: var(--sage);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  font-family: var(--font-body);
   font-size: 17px;
   font-weight: 700;
-  cursor: pointer;
   min-height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin-bottom: 12px;
 }
 .upgrade-btn:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -126,7 +116,7 @@
   width: 20px;
   height: 20px;
   border: 2px solid rgba(255,255,255,0.35);
-  border-top-color: #fff;
+  border-top-color: var(--white);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   display: block;
