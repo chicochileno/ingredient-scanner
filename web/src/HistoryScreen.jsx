@@ -189,41 +189,43 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
                   </div>
                 ) : (
                   <div className="ui-card hist-item-row" style={{ animationDelay: `${i * 30}ms` }}>
-                    <button className="hist-item" onClick={() => onSelect(scan)}>
-                      <div className="hist-item-thumb">
-                        {scan.imageUrl
-                          ? <img src={scan.imageUrl} alt="" className="hist-thumb-img" />
-                          : <span className="hist-thumb-placeholder">{scan.mode === 'barcode' ? '||I|I||' : scan.mode === 'menu' ? '≣' : '⊟'}</span>}
-                        <ScanModeBadge mode={scan.mode} className="hist-mode-badge" />
-                      </div>
-                      <div className="hist-item-body">
-                        {confirmDeleteId === scan.id ? (
-                          <p className="hist-item-name hist-delete-confirm-text">Delete this scan?</p>
-                        ) : (
-                          <p className="hist-item-name">{defaultName(scan)}</p>
-                        )}
-                        <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
-                      </div>
-                      {confirmDeleteId !== scan.id && <StatusPills scan={scan} flagsByScan={flagsByScan} />}
-                    </button>
-                    {confirmDeleteId === scan.id ? (
-                      <div className="hist-delete-actions">
-                        <button className="hist-delete-confirm-btn" onClick={() => deleteScan(scan)}>Delete</button>
-                        <button className="hist-cancel-btn" onClick={() => setConfirmDeleteId(null)}>✕</button>
-                      </div>
-                    ) : (
-                      <div className="hist-row-actions">
-                        <button className="hist-edit-btn" onClick={() => setSaveScan(scan)} aria-label="Save to list">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
-                        </button>
-                        <button className="hist-edit-btn" onClick={() => startEdit(scan)} aria-label="Edit name">
-                          <PencilIcon />
-                        </button>
-                        <button className="hist-delete-btn" onClick={() => setConfirmDeleteId(scan.id)} aria-label="Delete scan">
-                          <TrashIcon />
-                        </button>
-                      </div>
-                    )}
+                    <div className="hist-item-top">
+                      <button className="hist-item" onClick={() => onSelect(scan)}>
+                        <div className="hist-item-thumb">
+                          {scan.imageUrl
+                            ? <img src={scan.imageUrl} alt="" className="hist-thumb-img" />
+                            : <span className="hist-thumb-placeholder">{scan.mode === 'barcode' ? '||I|I||' : scan.mode === 'menu' ? '≣' : '⊟'}</span>}
+                          <ScanModeBadge mode={scan.mode} className="hist-mode-badge" />
+                        </div>
+                        <div className="hist-item-body">
+                          {confirmDeleteId === scan.id ? (
+                            <p className="hist-item-name hist-delete-confirm-text">Delete this scan?</p>
+                          ) : (
+                            <p className="hist-item-name">{defaultName(scan)}</p>
+                          )}
+                          <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
+                        </div>
+                      </button>
+                      {confirmDeleteId === scan.id ? (
+                        <div className="hist-delete-actions">
+                          <button className="hist-delete-confirm-btn" onClick={() => deleteScan(scan)}>Delete</button>
+                          <button className="hist-cancel-btn" onClick={() => setConfirmDeleteId(null)}>✕</button>
+                        </div>
+                      ) : (
+                        <div className="hist-row-actions">
+                          <button className="hist-edit-btn" onClick={() => setSaveScan(scan)} aria-label="Save to list">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
+                          </button>
+                          <button className="hist-edit-btn" onClick={() => startEdit(scan)} aria-label="Edit name">
+                            <PencilIcon />
+                          </button>
+                          <button className="hist-delete-btn" onClick={() => setConfirmDeleteId(scan.id)} aria-label="Delete scan">
+                            <TrashIcon />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    {confirmDeleteId !== scan.id && <StatusPills scan={scan} flagsByScan={flagsByScan} />}
                   </div>
                 )}
               </li>
