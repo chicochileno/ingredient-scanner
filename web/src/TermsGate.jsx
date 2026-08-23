@@ -50,7 +50,7 @@ export default function TermsGate({ user }) {
 
   return (
     <div className="terms-gate-overlay">
-      <div className="terms-gate-card" ref={cardRef} role="dialog" aria-modal="true" aria-labelledby="terms-gate-title">
+      <div className="ui-card terms-gate-card" ref={cardRef} role="dialog" aria-modal="true" aria-labelledby="terms-gate-title">
         <h1 id="terms-gate-title" className="terms-gate-title" tabIndex={-1} ref={titleRef}>Before you start</h1>
         <p className="terms-gate-intro">Please review and accept how this app works.</p>
         <ul className="terms-gate-points">
@@ -69,7 +69,7 @@ export default function TermsGate({ user }) {
           <span>I have read and agree to the Terms of Service and Privacy Policy.</span>
         </label>
         {error && <p className="terms-gate-error" role="alert">{error}</p>}
-        <button className="terms-gate-accept" onClick={handleAccept} disabled={!checked || saving}>
+        <button className="ui-btn ui-btn-primary terms-gate-accept" onClick={handleAccept} disabled={!checked || saving}>
           {saving ? 'Saving…' : 'Agree & Continue'}
         </button>
         <button className="terms-gate-signout" onClick={() => signOut(auth)}>Sign out</button>

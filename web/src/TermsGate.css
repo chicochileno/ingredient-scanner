@@ -1,7 +1,7 @@
 .terms-gate-overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg, #f7f5f0);
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,14 +12,11 @@
 .terms-gate-card {
   width: 100%;
   max-width: 480px;
-  background: #fff;
-  border: 1px solid var(--border, #e2ddd3);
-  border-radius: 16px;
   padding: 24px;
   box-sizing: border-box;
 }
 .terms-gate-title { margin: 0 0 8px; font-size: 1.4rem; outline: none; }
-.terms-gate-intro { margin: 0 0 16px; color: var(--muted, #555); }
+.terms-gate-intro { margin: 0 0 16px; color: var(--muted); }
 .terms-gate-points { margin: 0 0 16px; padding-left: 20px; line-height: 1.5; }
 .terms-gate-points li { margin-bottom: 8px; }
 .terms-gate-links { margin: 0 0 16px; }
@@ -32,17 +29,9 @@
   cursor: pointer;
 }
 .terms-gate-checkbox input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
-.terms-gate-error { color: #b23b3b; margin: 0 0 12px; }
+.terms-gate-error { color: var(--danger); margin: 0 0 12px; }
 .terms-gate-accept {
   width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: var(--sage);
-  color: #fff;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
 }
 .terms-gate-accept:disabled { opacity: 0.5; cursor: default; }
 .terms-gate-signout {
@@ -51,7 +40,7 @@
   padding: 12px;
   border: none;
   background: none;
-  color: var(--muted, #666);
+  color: var(--muted);
   text-decoration: underline;
   font: inherit;
   cursor: pointer;
