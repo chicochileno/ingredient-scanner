@@ -100,7 +100,7 @@ function ProfileFlags({ profileId, flagged, onDismiss }) {
   );
 }
 
-export default function ResultsScreen({ result, source, onScanAgain, onBack, imageUrl }) {
+export default function ResultsScreen({ result, source, onScanAgain, onBack, imageUrl, historyActions = null }) {
   const { rawText = '', productName } = result;
   // Normalize to a profiles array (back-compat: wrap a bare `flagged`)
   const profiles = result.profiles && result.profiles.length
@@ -110,6 +110,8 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
   const selected = profiles.find((p) => p.profileId === selectedId) || profiles[0];
   const multi = profiles.length > 1;
   const [showSave, setShowSave] = useState(false);
+  const [editingName, setEditingName] = useState(null); // null = not editing
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function onDismiss(profileId, ingredientId) {
     await dismissFlag(profileId, ingredientId);
@@ -120,7 +122,22 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
       <div className="results-scroll">
         {imageUrl && <div className="ui-preview results-preview"><img src={imageUrl} alt="Scanned item" /></div>}
         <div className="results-header">
-          {productName && <h1 className="results-product">{productName}</h1>}
+          {historyActions && editingName !== null ? (
+            <div className="results-name-edit">
+              <input className="ui-input" value={editingName} autoFocus onChange={(e) => setEditingName(e.target.value)} aria-label="Scan name" />
+              <button className="ui-btn ui-btn-primary" onClick={async () => { await historyActions.onRename(editingName); setEditingName(null); }}>Save</button>
+              <button className="ui-btn ui-btn-secondary" onClick={() => setEditingName(null)}>Cancel</button>
+            </div>
+          ) : (
+            <h1 className="results-product">
+              {productName || 'Scan'}
+              {historyActions && (
+                <button className="results-edit-name" aria-label="Edit name" onClick={() => setEditingName(productName || '')}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                </button>
+              )}
+            </h1>
+          )}
           <p className="results-source">{source === 'barcode' ? 'Scanned via barcode' : 'Scanned via camera'}</p>
         </div>
 
@@ -157,6 +174,19 @@ export default function ResultsScreen({ result, source, onScanAgain, onBack, ima
           </section>
         )}
         <p className="disclaimer">For informational purposes only. Not a substitute for medical or nutritional advice. Always consult a qualified professional.</p>
+        {historyActions && (
+          <div className="results-delete-wrap">
+            {confirmDelete ? (
+              <div className="results-delete-confirm">
+                <span>Delete this scan?</span>
+                <button className="ui-btn ui-btn-danger" onClick={() => historyActions.onDelete()}>Delete</button>
+                <button className="ui-btn ui-btn-secondary" onClick={() => setConfirmDelete(false)}>Cancel</button>
+              </div>
+            ) : (
+              <button className="ui-btn ui-btn-danger results-delete-btn" onClick={() => setConfirmDelete(true)}>Delete scan</button>
+            )}
+          </div>
+        )}
       </div>
       <div className="results-footer">
         <button className="ui-btn ui-btn-secondary save-list-btn" onClick={() => setShowSave(true)}>Save to list</button>

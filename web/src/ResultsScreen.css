@@ -283,3 +283,13 @@
 .profile-chip-safe { border-color:#BEDDAB; color:var(--safe); }
 .profile-chip-sel { outline:2px solid var(--sage); outline-offset:1px; }
 .profile-chip:focus-visible { outline:2px solid var(--sage); outline-offset:2px; }
+
+.results-product { display: inline-flex; align-items: center; gap: 8px; }
+.results-edit-name { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px; }
+.results-edit-name:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; border-radius: 6px; }
+.results-name-edit { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+.results-name-edit .ui-input { flex: 1; min-width: 160px; }
+.results-delete-wrap { margin: 24px 0 90px; }
+.results-delete-btn { width: 100%; }
+.results-delete-confirm { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.results-delete-confirm span { flex: 1; }
