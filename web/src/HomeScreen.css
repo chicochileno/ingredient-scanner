@@ -30,7 +30,7 @@
 .home-history-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; }
 .home-viewall { background: none; border: none; color: var(--sage-deep); font: inherit; font-weight: 600; cursor: pointer; }
 .home-history-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px 16px; }
-.home-history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.home-history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
 .home-empty { color: var(--muted); padding: 20px 4px; }
 .scan-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; padding: 0 0 10px; font: inherit; cursor: pointer; }
 .scan-card-img { position: relative; width: 100%; height: 180px; max-height: 180px; background: var(--preview-bg); display: flex; align-items: center; justify-content: center; }
