@@ -82,8 +82,8 @@
 }
 
 .login-btn-apple {
-  background: #1C1917;
-  color: #fff;
+  background: var(--ink);
+  color: var(--white);
 }
 
 .login-spinner {
@@ -100,7 +100,7 @@
 }
 .login-spinner-white {
   border: 2px solid rgba(255,255,255,0.25);
-  border-top-color: #fff;
+  border-top-color: var(--white);
 }
 
 .login-error {
@@ -134,6 +134,6 @@
   font-size: 0.85rem;
 }
 .login-legal a {
-  color: var(--muted, #666);
+  color: var(--muted);
   text-decoration: underline;
 }
