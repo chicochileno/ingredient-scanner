@@ -73,3 +73,11 @@
   font: inherit;
 }
 .ui-input:focus-visible { outline: 2px solid var(--sage); outline-offset: 1px; }
+
+.ui-btn-danger { background: var(--surface); color: var(--danger); border-color: var(--danger); }
+
+/* Scan mode badge (shared by Home grid + History rows) */
+.scan-mode-badge { position: absolute; top: 8px; left: 8px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; background: rgba(0,0,0,.55); }
+.scan-mode-barcode { background: var(--sage-deep); }
+.scan-mode-menu { background: var(--warning); }
+.scan-mode-label { background: rgba(0,0,0,.55); }

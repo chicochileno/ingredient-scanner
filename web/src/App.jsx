@@ -12,6 +12,7 @@ import MenuResultsScreen from './MenuResultsScreen';
 import HistoryScreen from './HistoryScreen';
 import SupportScreen from './SupportScreen';
 import AppShell from './AppShell';
+import { renameScan, deleteScan } from './scanActions';
 import { useProfiles, ProfileContext, useProfileContext } from './useProfiles';
 import ProfileEditor from './ProfileEditor';
 import ProfilesScreen from './ProfilesScreen';
@@ -139,6 +140,10 @@ function HistoryScanRoute({ user }) {
       imageUrl={scan.imageUrl}
       onBack={() => navigate('/history')}
       onScanAgain={() => navigate('/scan')}
+      historyActions={{
+        onRename: async (name) => { await renameScan(user.uid, scanId, name); setScan((s) => ({ ...s, productName: name.trim() })); },
+        onDelete: async () => { await deleteScan(user.uid, scan); navigate('/history'); },
+      }}
     />
   );
 }
