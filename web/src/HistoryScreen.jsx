@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, limit, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db } from './firebase';
 import './HistoryScreen.css';
 import SaveToListSheet from './SaveToListSheet';
 import './AllergensScreen.css';
+import { scanCardModel } from './homeModel';
+import ScanModeBadge from './ScanModeBadge';
+import { renameScan, deleteScan as deleteScanDoc } from './scanActions';
 
 function formatDate(ts) {
   if (!ts) return '';
@@ -18,16 +21,9 @@ function formatDate(ts) {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: days > 365 ? 'numeric' : undefined });
 }
 
-function FlagBadge({ flagged }) {
-  if (!flagged || flagged.length === 0) {
-    return <span className="hist-badge hist-badge-safe">Clear</span>;
-  }
-  const hasHigh = flagged.some(f => f.severity === 'high');
-  return (
-    <span className={`hist-badge ${hasHigh ? 'hist-badge-danger' : 'hist-badge-warn'}`}>
-      {flagged.length} flag{flagged.length !== 1 ? 's' : ''}
-    </span>
-  );
+function StatusPill({ scan }) {
+  const { status, label } = scanCardModel(scan);
+  return <span className={`ui-pill ui-pill-${status === 'safe' ? 'safe' : 'danger'}`}>{label}</span>;
 }
 
 function TrashIcon() {
@@ -91,9 +87,7 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
     if (!editingName.trim() || saving) return;
     setSaving(true);
     try {
-      await updateDoc(doc(db, 'users', user.uid, 'scans', scanId), {
-        productName: editingName.trim(),
-      });
+      await renameScan(user.uid, scanId, editingName);
       setScans(prev => prev.map(s => s.id === scanId ? { ...s, productName: editingName.trim() } : s));
       setEditingId(null);
     } catch (e) {
@@ -105,11 +99,7 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
 
   async function deleteScan(scan) {
     try {
-      await deleteDoc(doc(db, 'users', user.uid, 'scans', scan.id));
-      if (scan.imageUrl) {
-        const imgRef = ref(storage, `scans/${user.uid}/${scan.id}.jpg`);
-        await deleteObject(imgRef).catch(() => {});
-      }
+      await deleteScanDoc(user.uid, scan);
       setScans(prev => prev.filter(s => s.id !== scan.id));
       setConfirmDeleteId(null);
     } catch (e) {
@@ -138,18 +128,16 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
             {scans.map((scan, i) => (
               <li key={scan.id} className="hist-list-item">
                 {editingId === scan.id ? (
-                  <div className="hist-item hist-item-editing" style={{ animationDelay: `${i * 30}ms` }}>
+                  <div className="ui-card hist-item-editing" style={{ animationDelay: `${i * 30}ms` }}>
                     <div className="hist-item-thumb">
                       {scan.imageUrl
                         ? <img src={scan.imageUrl} alt="" className="hist-thumb-img" />
-                        : <span className="hist-thumb-placeholder">
-                            {scan.mode === 'barcode' ? '▦' : '⊟'}
-                          </span>
-                      }
+                        : <span className="hist-thumb-placeholder">{scan.mode === 'barcode' ? '||I|I||' : scan.mode === 'menu' ? '≣' : '⊟'}</span>}
+                      <ScanModeBadge mode={scan.mode} className="hist-mode-badge" />
                     </div>
                     <div className="hist-item-body">
                       <input
-                        className="hist-name-input"
+                        className="ui-input hist-name-input"
                         value={editingName}
                         onChange={e => setEditingName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && saveName(scan.id)}
@@ -165,15 +153,13 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="hist-item-row" style={{ animationDelay: `${i * 30}ms` }}>
+                  <div className="ui-card hist-item-row" style={{ animationDelay: `${i * 30}ms` }}>
                     <button className="hist-item" onClick={() => onSelect(scan)}>
                       <div className="hist-item-thumb">
                         {scan.imageUrl
                           ? <img src={scan.imageUrl} alt="" className="hist-thumb-img" />
-                          : <span className="hist-thumb-placeholder">
-                              {scan.mode === 'barcode' ? '▦' : '⊟'}
-                            </span>
-                        }
+                          : <span className="hist-thumb-placeholder">{scan.mode === 'barcode' ? '||I|I||' : scan.mode === 'menu' ? '≣' : '⊟'}</span>}
+                        <ScanModeBadge mode={scan.mode} className="hist-mode-badge" />
                       </div>
                       <div className="hist-item-body">
                         {confirmDeleteId === scan.id ? (
@@ -183,7 +169,7 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
                         )}
                         <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
                       </div>
-                      {confirmDeleteId !== scan.id && <FlagBadge flagged={scan.flagged} />}
+                      {confirmDeleteId !== scan.id && <StatusPill scan={scan} />}
                     </button>
                     {confirmDeleteId === scan.id ? (
                       <div className="hist-delete-actions">
@@ -193,7 +179,7 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
                     ) : (
                       <div className="hist-row-actions">
                         <button className="hist-edit-btn" onClick={() => setSaveScan(scan)} aria-label="Save to list">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>
                         </button>
                         <button className="hist-edit-btn" onClick={() => startEdit(scan)} aria-label="Edit name">
                           <PencilIcon />
