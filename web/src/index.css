@@ -9,6 +9,7 @@
   --ink-3: #5A6250;
   --muted: #5A6250;
   --border: #E1E3D5;
+  --backdrop: #DDE0D2;
   --sage: #3F6B4A;
   --sage-deep: #2E4B33;
   --sage-light: #E3EFD3;
@@ -39,7 +40,7 @@ html, body, #root {
 
 body {
   font-family: var(--font-body);
-  background: var(--bg);
+  background: var(--backdrop);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
