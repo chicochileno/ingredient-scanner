@@ -86,7 +86,7 @@
 
 .hist-list {
   list-style: none;
-  padding: 8px 0 env(safe-area-inset-bottom, 24px);
+  padding: 8px 16px env(safe-area-inset-bottom, 24px);
 }
 
 

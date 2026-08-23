@@ -3,7 +3,7 @@
   background: var(--bg);
   display: flex;
   flex-direction: column;
-  padding: env(safe-area-inset-top, 52px) 0 env(safe-area-inset-bottom, 32px);
+  padding: 20px 0 env(safe-area-inset-bottom, 32px);
 }
 
 .upgrade-back {

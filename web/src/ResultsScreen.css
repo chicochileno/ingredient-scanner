@@ -24,7 +24,7 @@
 .results-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: env(safe-area-inset-top, 48px) 20px 120px;
+  padding: 20px 20px 120px;
   -webkit-overflow-scrolling: touch;
 }
 
