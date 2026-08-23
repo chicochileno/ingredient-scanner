@@ -18,6 +18,7 @@ const allowedOrigins = [
   'https://ingredientscan.app',
   'https://scanner.joelrog.com',
   'http://localhost:5173',
+  'capacitor://localhost', // native iOS app (Capacitor)
 ];
 app.use(cors({
   origin: (origin, cb) => {
