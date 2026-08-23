@@ -5,9 +5,10 @@ import { db } from './firebase';
 import './HistoryScreen.css';
 import SaveToListSheet from './SaveToListSheet';
 import './AllergensScreen.css';
-import { scanCardModel } from './homeModel';
 import ScanModeBadge from './ScanModeBadge';
 import { renameScan, deleteScan as deleteScanDoc } from './scanActions';
+import { rematchBatch } from './api';
+import { perProfileFromRematch, perProfileFromMenu, statusPills } from './historyFlags';
 
 function formatDate(ts) {
   if (!ts) return '';
@@ -21,9 +22,15 @@ function formatDate(ts) {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: days > 365 ? 'numeric' : undefined });
 }
 
-function StatusPill({ scan }) {
-  const { status, label } = scanCardModel(scan);
-  return <span className={`ui-pill ui-pill-${status === 'safe' ? 'safe' : 'danger'}`}>{label}</span>;
+function StatusPills({ scan, flagsByScan }) {
+  const perProfile = flagsByScan[scan.id] || [{ name: null, count: (scan.flagged || []).length }];
+  return (
+    <span className="hist-status">
+      {statusPills(perProfile).map((p, i) => (
+        <span key={i} className={`ui-pill ui-pill-${p.variant}`}>{p.label}</span>
+      ))}
+    </span>
+  );
 }
 
 function TrashIcon() {
@@ -58,6 +65,7 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
   const [saving, setSaving] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [saveScan, setSaveScan] = useState(null);
+  const [flagsByScan, setFlagsByScan] = useState({});
 
   useEffect(() => {
     async function load() {
@@ -68,7 +76,34 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
           limit(100)
         );
         const snap = await getDocs(q);
-        setScans(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setScans(loaded);
+
+        // Seed a fallback single-pill instantly (menu from snapshot; others from stored primary flags),
+        // then upgrade non-menu scans to live per-person via one rematch-batch call.
+        const fb = {};
+        for (const s of loaded) {
+          fb[s.id] = s.mode === 'menu'
+            ? perProfileFromMenu(s.menuSnapshot?.profiles || [])
+            : [{ name: null, count: (s.flagged || []).length }];
+        }
+        setFlagsByScan(fb);
+
+        const items = loaded
+          .filter(s => s.mode !== 'menu' && s.rawText)
+          .map(s => ({ itemId: s.id, rawText: s.rawText }));
+        if (items.length) {
+          try {
+            const { results } = await rematchBatch(items);
+            setFlagsByScan(prev => {
+              const next = { ...prev };
+              for (const r of results) next[r.itemId] = perProfileFromRematch(r.profiles);
+              return next;
+            });
+          } catch (e) {
+            console.error('Per-profile rematch failed; showing primary counts', e);
+          }
+        }
       } catch (e) {
         console.error('Failed to load history', e);
       } finally {
@@ -169,7 +204,7 @@ export default function HistoryScreen({ user, onBack, onSelect }) {
                         )}
                         <p className="hist-item-date">{formatDate(scan.createdAt)}</p>
                       </div>
-                      {confirmDeleteId !== scan.id && <StatusPill scan={scan} />}
+                      {confirmDeleteId !== scan.id && <StatusPills scan={scan} flagsByScan={flagsByScan} />}
                     </button>
                     {confirmDeleteId === scan.id ? (
                       <div className="hist-delete-actions">
