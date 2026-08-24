@@ -1,7 +1,15 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import {
+  getAuth,
+  initializeAuth,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+  GoogleAuthProvider,
+  OAuthProvider,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { Capacitor } from '@capacitor/core';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,7 +21,18 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+
+// On the native (Capacitor/WKWebView) build, getAuth()'s automatic popup/redirect
+// resolver tries to load a cross-origin iframe from the Firebase authDomain; under
+// capacitor://localhost that init promise never resolves, so onAuthStateChanged never
+// fires and the app hangs on its loading spinner. Initialize auth explicitly with a
+// persistence chain and NO popupRedirectResolver — native sign-in uses the server-side
+// OAuth flow (custom token), not signInWithPopup, so the resolver isn't needed here.
+export const auth = Capacitor.isNativePlatform()
+  ? initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+    })
+  : getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
