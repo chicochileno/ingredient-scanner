@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
-import { auth, db } from './firebase';
+import { db } from './firebase';
+import { signOutEverywhere } from './auth';
 import { CURRENT_TERMS_VERSION } from './legal';
 import './TermsGate.css';
 
@@ -72,7 +72,7 @@ export default function TermsGate({ user }) {
         <button className="ui-btn ui-btn-primary terms-gate-accept" onClick={handleAccept} disabled={!checked || saving}>
           {saving ? 'Saving…' : 'Agree & Continue'}
         </button>
-        <button className="terms-gate-signout" onClick={() => signOut(auth)}>Sign out</button>
+        <button className="terms-gate-signout" onClick={() => signOutEverywhere()}>Sign out</button>
       </div>
     </div>
   );

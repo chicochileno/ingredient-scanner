@@ -1,10 +1,6 @@
 import { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from './firebase';
-
-// Chrome on iOS opens popups as a new tab and loses the opener reference,
-// so postMessage back to the original tab never arrives. Use redirect instead.
-const isChromeIOS = /CriOS/.test(navigator.userAgent);
+import { signInWithGoogle } from './auth';
+import { isCancelledSignIn } from './authMethod.js';
 import './LoginScreen.css';
 
 function GoogleIcon() {
@@ -27,17 +23,11 @@ export default function LoginScreen({ onSignedIn }) {
     setLoading('google');
     setError(null);
     try {
-      if (isChromeIOS) {
-        // Server-side OAuth — bypasses Chrome iOS cross-origin storage restrictions
-        window.location.href = `${import.meta.env.VITE_API_URL || ''}/auth/google`;
-      } else {
-        const result = await signInWithPopup(auth, googleProvider);
-        onSignedIn(result.user);
-      }
+      const user = await signInWithGoogle();
+      if (user) onSignedIn(user);
+      // A null user means a redirect is in flight — leave the spinner up.
     } catch (e) {
-      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
-        setError(`Sign in failed: ${e.message}`);
-      }
+      if (!isCancelledSignIn(e)) setError(`Sign in failed: ${e.message}`);
       setLoading(null);
     }
   }

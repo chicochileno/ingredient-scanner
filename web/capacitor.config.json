@@ -1,5 +1,11 @@
 {
   "appId": "app.ingredientscan",
   "appName": "IngredientScan",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": true,
+      "providers": ["google.com"]
+    }
+  }
 }
