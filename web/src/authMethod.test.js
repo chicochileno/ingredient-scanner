@@ -30,4 +30,8 @@ test('isCancelledSignIn: real failures are not swallowed', () => {
   assert.strictEqual(isCancelledSignIn({ code: 'auth/network-request-failed' }), false);
   assert.strictEqual(isCancelledSignIn({ message: 'Google sign-in returned no ID token' }), false);
   assert.strictEqual(isCancelledSignIn(undefined), false);
+  // Boundary: "cancel" substring without user attribution is not a user cancellation
+  assert.strictEqual(isCancelledSignIn({ message: 'Upload cancelled: connection reset' }), false);
+  assert.strictEqual(isCancelledSignIn({ code: 'auth/internal-error', message: 'operation was cancelled by the server' }), false);
+  assert.strictEqual(isCancelledSignIn({ message: 'Request cancelled due to session timeout' }), false);
 });

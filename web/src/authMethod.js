@@ -19,6 +19,10 @@ export function isCancelledSignIn(error) {
   const message = String(error?.message || '');
   if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return true;
   // The iOS Google SDK words this several ways ("canceled", "cancelled") and the
-  // plugin passes it through, so match the stem in both the code and the message.
-  return /cancel/i.test(code) || /cancel/i.test(message);
+  // plugin passes it through, so match the stem in the code (which is namespaced).
+  if (/cancel/i.test(code)) return true;
+  // Message-based detection: check only for user-attributed cancellations. A bare
+  // "cancel" substring can appear in real errors ("Upload cancelled: connection reset",
+  // "operation was cancelled by the server"), so we must attribute it to the user.
+  return /user\s+cancell?ed/i.test(message) || /cancell?ed\s+by\s+(the\s+)?user/i.test(message);
 }
