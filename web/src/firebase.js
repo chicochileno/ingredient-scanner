@@ -26,8 +26,9 @@ const app = initializeApp(firebaseConfig);
 // resolver tries to load a cross-origin iframe from the Firebase authDomain; under
 // capacitor://localhost that init promise never resolves, so onAuthStateChanged never
 // fires and the app hangs on its loading spinner. Initialize auth explicitly with a
-// persistence chain and NO popupRedirectResolver — native sign-in uses the server-side
-// OAuth flow (custom token), not signInWithPopup, so the resolver isn't needed here.
+// persistence chain and NO popupRedirectResolver — native sign-in goes through the
+// Capacitor plugin and signInWithCredential (see auth.js), never signInWithPopup, so
+// the resolver isn't needed here.
 export const auth = Capacitor.isNativePlatform()
   ? initializeAuth(app, {
       persistence: [indexedDBLocalPersistence, browserLocalPersistence],

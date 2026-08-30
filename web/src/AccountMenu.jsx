@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { auth } from './firebase';
+import { signOutEverywhere } from './auth';
 import { useBillingContext } from './useBilling';
 import { createCustomerPortalSession } from './api';
 import './AccountMenu.css';
@@ -40,7 +39,7 @@ export default function AccountMenu({ onClose, onAbout }) {
 
   return (
     <div className="account-menu" role="menu" ref={ref}>
-      <button ref={firstItemRef} role="menuitem" className="account-item" onClick={() => signOut(auth)}>Sign out</button>
+      <button ref={firstItemRef} role="menuitem" className="account-item" onClick={() => signOutEverywhere()}>Sign out</button>
       {isSubscribed && (
         <button role="menuitem" className="account-item" onClick={manageSubscription}>Manage subscription</button>
       )}
