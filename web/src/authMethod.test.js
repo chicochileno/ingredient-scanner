@@ -34,4 +34,7 @@ test('isCancelledSignIn: real failures are not swallowed', () => {
   assert.strictEqual(isCancelledSignIn({ message: 'Upload cancelled: connection reset' }), false);
   assert.strictEqual(isCancelledSignIn({ code: 'auth/internal-error', message: 'operation was cancelled by the server' }), false);
   assert.strictEqual(isCancelledSignIn({ message: 'Request cancelled due to session timeout' }), false);
+  // The native sign-in timeout error (auth.js) must never read as a user cancellation,
+  // or the timeout would be silently swallowed instead of surfacing to the user.
+  assert.strictEqual(isCancelledSignIn(new Error('Google sign-in timed out. Please try again.')), false);
 });

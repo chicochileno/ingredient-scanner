@@ -17,10 +17,27 @@ const isChromeIOS = /CriOS/.test(navigator.userAgent);
 // Google sheet and — with skipNativeAuth — hands back the Google ID token WITHOUT
 // signing in itself. We then feed that token to the Firebase JS SDK, which stays the
 // single source of auth truth for onAuthStateChanged, Firestore, and the backend.
+const NATIVE_SIGN_IN_TIMEOUT_MS = 60_000;
 async function signInNative() {
   // Lazy import so the plugin's web implementation never enters the browser bundle.
   const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
-  const result = await FirebaseAuthentication.signInWithGoogle({ skipNativeAuth: true });
+
+  // The plugin's iOS handler has code paths that return without ever resolving
+  // OR rejecting the saved call, so the JS promise can hang forever with no error
+  // and no way to recover short of force-quitting the app. Race it against a timeout
+  // so a stuck native sheet still surfaces as a normal, catchable sign-in failure.
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error('Google sign-in timed out. Please try again.'));
+    }, NATIVE_SIGN_IN_TIMEOUT_MS);
+  });
+  const result = await Promise.race([
+    FirebaseAuthentication.signInWithGoogle({ skipNativeAuth: true }),
+    timeout,
+  ]);
+  clearTimeout(timeoutId);
+
   const idToken = result?.credential?.idToken;
   if (!idToken) throw new Error('Google sign-in returned no ID token');
   const { user } = await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
@@ -59,5 +76,12 @@ export async function signOutEverywhere() {
       console.error('Native Google sign-out failed:', e);
     }
   }
-  await signOut(auth);
+  try {
+    await signOut(auth);
+  } catch (e) {
+    // Both call sites fire-and-forget this (`onClick={() => signOutEverywhere()}`),
+    // so an unhandled rejection here would look like a successful sign-out to the
+    // user while Firebase silently kept the session. Log it rather than losing it.
+    console.error('Sign-out failed:', e);
+  }
 }
