@@ -5,6 +5,13 @@
   padding-bottom: env(safe-area-inset-bottom, 0);
   z-index: 40;
 }
+/* Once viewport-fit=cover is set (see main.jsx) env(safe-area-inset-bottom) reports
+   ~34px on a home-indicator device, which made the bar taller than wanted. Trim 24px
+   back off it, floored at 0 so devices without an inset (or the web) never get a
+   negative value, which would invalidate the declaration outright. */
+.native-app .bottomnav {
+  padding-bottom: max(0px, calc(env(safe-area-inset-bottom, 0px) - 24px));
+}
 .bottomnav-tabs {
   display: flex;
   align-items: center;
